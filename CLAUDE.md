@@ -26,6 +26,10 @@ Booking.com, Airbnb, Expedia, Agoda, Traveloka and the rest.
 - **Use Composio** for anything on GitHub or Vercel (repo creation, deploys,
   project settings). The `github` and `vercel` toolkits are connected as
   `adityasomaa` / `adityasoma`.
+- **Commit and push every change as soon as it is verified.** Do not batch a
+  session's work into one push at the end. The container is ephemeral, so
+  anything unpushed is lost. Push to the session's working branch — going
+  straight to `main` deploys to production and needs to be asked for.
 - **Do not claim a thing works without checking it.** See *Verification*.
 
 ## Stack
