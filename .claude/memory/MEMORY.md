@@ -1,0 +1,5 @@
+- [Reply in Indonesian](reply-in-indonesian.md) — chat in Indonesian, files in English.
+- [Use Composio for GitHub and Vercel](use-composio-for-github-and-vercel.md) — repo, deploy and project settings go through the toolkits.
+- [STAYBASE infrastructure ids](staybase-infrastructure-ids.md) — repo, Vercel project and team identifiers, and why a push may not deploy.
+- [STAYBASE project context](staybase-project-context.md) — what the product is and where the source of truth now lives.
+- [Verify UI geometrically](verify-ui-geometrically.md) — screenshots are unavailable here; assert layout with headless geometry.
