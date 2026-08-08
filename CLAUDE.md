@@ -6,8 +6,8 @@ re-litigating settled choices.
 
 **Live:** https://staybase-pms.vercel.app
 **Repo:** https://github.com/adityasomaa/staybase (this one — work here)
-**Legacy repo:** https://github.com/adityasomaa/staybase-pms (first push; the
-Vercel project is still git-linked to it — see *Deployment* below)
+**Archive:** https://github.com/adityasomaa/staybase-pms (the first push, kept
+as a snapshot; nothing deploys from it any more)
 
 ---
 
@@ -143,14 +143,24 @@ assertions passing against production.
 | --- | --- |
 | Vercel project | `staybase-pms` (`prj_srtnPeYsQWEwvzcb5uomZaUokODV`) |
 | Vercel team | Onyx Creative Asia (`team_kbdWnc8l2imilAGvKfLdsbXv`), Hobby plan |
+| Git link | `adityasomaa/staybase`, production branch `main` |
 | Region | `sin1` |
 | Production URL | https://staybase-pms.vercel.app |
 
-**The Vercel project is git-linked to `adityasomaa/staybase-pms`, not to this
-repo.** Pushing here does not deploy on its own. Either relink the project to
-`adityasomaa/staybase` (the production URL is attached to the project, not the
-repo, so it survives), or trigger a deployment explicitly with
-`VERCEL_CREATE_NEW_DEPLOYMENT` using this repo id.
+**A push to `main` deploys automatically.** The Vercel project is still *named*
+`staybase-pms` because the production URL hangs off the project name — renaming
+it would move the URL, so the name stays and only the git link was repointed.
+
+Composio's Vercel toolkit has no tool for changing a project's git link.
+`VERCEL_UPDATE_PROJECT` does not expose the field. Use the workbench proxy
+instead — `DELETE` then `POST` on `/v9/projects/{id}/link`, since Vercel
+refuses to relink a project that is already linked:
+
+```python
+proxy_execute("DELETE", f"{BASE}/link", "VERCEL", query_params={"teamId": TEAM})
+proxy_execute("POST",   f"{BASE}/link", "VERCEL", query_params={"teamId": TEAM},
+              body={"type": "github", "repo": "adityasomaa/staybase"})
+```
 
 ## Environment variables
 
