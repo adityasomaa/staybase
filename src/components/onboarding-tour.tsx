@@ -49,7 +49,7 @@ const steps: Step[] = [
     body: "Room types down the side, dates across the top, one row per rate plan. The row directly under a room type is availability, shared by every plan beneath it.",
     points: [
       "Click a cell to change rate, minimum stay or stop sell.",
-      "Edits stage locally and outline in colour — nothing reaches a channel until you press Save & push.",
+      "Edits outline in colour and push themselves a moment after you stop — there is no sync to forget.",
       "An amber triangle means the row is not mapped to Channex and will be skipped.",
     ],
     href: "/calendar",
@@ -62,7 +62,7 @@ const steps: Step[] = [
     points: [
       "Click any stay to open its details, assign a room or take a payment.",
       "Click an empty cell to block the room for maintenance, renovation or owner use.",
-      "Blocks reduce sellable inventory immediately and reach channels on the next push.",
+      "Blocks reduce sellable inventory immediately and push to the channels on their own.",
     ],
     href: "/planner",
     hrefLabel: "Open the calendar",
@@ -86,7 +86,7 @@ const steps: Step[] = [
     points: [
       "Set the floor and ceiling before enabling any rule.",
       "The preview shows exactly which rules moved each date and what clamped it.",
-      "Applying suggestions stages them like any other edit — you still push deliberately.",
+      "Applying suggestions writes them to the calendar like any other edit, so they push too.",
     ],
     href: "/pricing",
     hrefLabel: "Open pricing",

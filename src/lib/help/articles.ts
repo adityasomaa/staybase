@@ -66,7 +66,7 @@ export const helpArticles: HelpArticle[] = [
     title: "Reading and editing the ARI grid",
     category: "rates",
     summary:
-      "Rates, inventory and restrictions in one grid — and why edits stage before they push.",
+      "Rates, inventory and restrictions in one grid — and how an edit reaches a channel.",
     minutes: 5,
     keywords: ["ari", "calendar", "rates", "availability", "restrictions", "min stay", "stop sell", "grid"],
     body: [
@@ -78,10 +78,10 @@ export const helpArticles: HelpArticle[] = [
         ],
       },
       {
-        heading: "Staging and pushing",
+        heading: "How an edit reaches a channel",
         paragraphs: [
-          "Editing a cell stages the change locally and outlines it. Nothing leaves STAYBASE until you press Save & push.",
-          "That is deliberate. A push is a rate-limited call and a half-finished push is exactly how rate parity incidents start — it is safer to rework a whole week and send it once.",
+          "Editing a cell outlines it and pushes it for you. There is no button to forget: a moment after you stop editing, the whole window goes to Channex and the toast tells you what was accepted.",
+          "The short pause before it sends is deliberate. A push is a rate-limited call and a half-finished batch is exactly how rate parity incidents start, so consecutive edits are collected and sent once rather than one call per cell.",
         ],
         steps: [
           {
@@ -89,11 +89,11 @@ export const helpArticles: HelpArticle[] = [
             target: "calendar-grid",
           },
           {
-            text: "Repeat across the dates you want to change; the pending counter tracks them.",
+            text: "Keep editing across the dates you want to change — they are counted here and all go in the same batch.",
             target: "calendar-push",
           },
           {
-            text: "Press Save & push to send the whole batch, or Discard to drop it.",
+            text: "Stop editing. The push fires on its own; Push now only forces it early.",
             target: "calendar-push",
           },
         ],
@@ -145,7 +145,7 @@ export const helpArticles: HelpArticle[] = [
       {
         heading: "Blocks and overbooking",
         paragraphs: [
-          "A block reduces sellable inventory immediately, but channels only learn about it on the next push. If the block is urgent, sync straight after saving rather than waiting for the nightly job.",
+          "A block reduces sellable inventory immediately, and the reduced availability is pushed to every connected channel a moment after you save it — you do not have to remember to sync. The nightly reconciliation is a safety net, not the delivery mechanism.",
         ],
       },
     ],
@@ -221,7 +221,7 @@ export const helpArticles: HelpArticle[] = [
             target: "pricing-rules",
           },
           {
-            text: "Apply to the calendar when the suggestions look right — they stage like any other edit, so nothing reaches a channel until you push.",
+            text: "Apply to the calendar when the suggestions look right — they behave like any manual edit, which means they push themselves.",
             target: "pricing-preview",
           },
         ],
@@ -344,7 +344,7 @@ export const helpArticles: HelpArticle[] = [
             target: "channels-journal",
           },
           {
-            text: "Blocks and out-of-order rooms — these reduce sellable inventory locally the moment they are saved, but a channel only learns about them on the next push.",
+            text: "Blocks and out-of-order rooms — these reduce sellable inventory the moment they are saved and push straight away, so a mismatch here means the push itself failed. Check the journal.",
             target: "planner-grid",
           },
         ],

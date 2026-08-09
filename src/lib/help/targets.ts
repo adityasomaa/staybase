@@ -50,8 +50,8 @@ export const tourTargets: Record<TourTargetId, TourTarget> = {
   },
   "calendar-push": {
     href: "/calendar",
-    label: "Show me Save & push",
-    hint: "Edits stage locally and are counted here. Nothing reaches a channel until you press this — that is what stops a half-finished change from becoming a rate parity incident.",
+    label: "Show me the push controls",
+    hint: "Edits are counted here and pushed for you a moment after you stop editing. Push now only forces that early — there is nothing to forget.",
   },
 
   "planner-grid": {
@@ -62,7 +62,7 @@ export const tourTargets: Record<TourTargetId, TourTarget> = {
   "planner-block": {
     href: "/planner",
     label: "Show me Block room",
-    hint: "Blocking takes a room off sale for a date range and reduces sellable inventory immediately. Channels only learn about it on the next push.",
+    hint: "Blocking takes a room off sale for a date range. Sellable inventory drops immediately and the reduction is pushed to every connected channel on its own.",
   },
 
   "channels-add": {
@@ -96,7 +96,7 @@ export const tourTargets: Record<TourTargetId, TourTarget> = {
     href: "/pricing",
     tab: "preview",
     label: "Open Pricing → Preview",
-    hint: "Current versus suggested, date by date, with the rules that moved each one and the guardrail that clamped it. Applying stages the change like any other edit.",
+    hint: "Current versus suggested, date by date, with the rules that moved each one and the guardrail that clamped it. Applying writes them to the calendar, which pushes them.",
   },
   "pricing-guardrails": {
     href: "/pricing",

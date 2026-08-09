@@ -38,7 +38,7 @@ export default function CalendarPage() {
     <>
       <PageHeader
         title="Rates & Availability"
-        description="One grid for rates, inventory and restrictions. Changes are staged locally and pushed to every mapped channel through Channex in a single batch."
+        description="One grid for rates, inventory and restrictions. Changes push themselves to every mapped channel through Channex, collected into a single batch a moment after you stop editing."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

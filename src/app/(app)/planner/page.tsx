@@ -81,8 +81,8 @@ export default async function PlannerPage(props: {
       <p className="text-muted-foreground text-xs text-pretty">
         {activeBlocks.length} active or upcoming block
         {activeBlocks.length === 1 ? "" : "s"} across the property. Blocks reduce sellable
-        inventory the moment they are saved; channels learn about them on the next push, so
-        sync straight away if the block is urgent.
+        inventory the moment they are saved, and the reduction is pushed to every connected
+        channel on its own.
       </p>
     </>
   );

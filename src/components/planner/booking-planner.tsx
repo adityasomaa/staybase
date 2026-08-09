@@ -17,6 +17,7 @@ import { toast } from "sonner";
 
 import { addDays, dayLabel, dayNumber, diffDays, formatDate, isWeekend, monthLabel } from "@/lib/date";
 import { channelLabels, formatMoney, initials, statusLabels } from "@/lib/format";
+import { queueChannelSync } from "@/lib/sync/auto-sync";
 import type { BlockReason, ChannelCode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ChannelPill, StatusPill } from "@/components/tokens";
@@ -233,15 +234,17 @@ export function BookingPlanner({
     ]);
     setBlockDraft(null);
     toast.success(`Room ${blockDraft.roomNumber} blocked`, {
-      description: `${blockReasonLabels[reason]} · ${formatDate(blockDraft.from)} → ${formatDate(blockDraft.to)}. Push to update channels.`,
+      description: `${blockReasonLabels[reason]} · ${formatDate(blockDraft.from)} → ${formatDate(blockDraft.to)}.`,
     });
+    queueChannelSync("a room block", { from: blockDraft.from });
   };
 
   const removeBlock = (id: string, roomNumber: string) => {
     setRemoved((prev) => new Set(prev).add(id));
     toast.success(`Block removed from room ${roomNumber}`, {
-      description: "The room returns to sale on the next push.",
+      description: "The room is back on sale.",
     });
+    queueChannelSync("a block being lifted");
   };
 
   const canBack = offset > 0;
@@ -681,8 +684,8 @@ function BlockDialog({
         <DialogHeader>
           <DialogTitle>Block a room</DialogTitle>
           <DialogDescription className="text-pretty">
-            The room is removed from sale for these dates and the reduced availability reaches
-            every connected channel on the next push.
+            The room is removed from sale for these dates, and the reduced availability is
+            pushed to every connected channel as soon as you save.
           </DialogDescription>
         </DialogHeader>
 

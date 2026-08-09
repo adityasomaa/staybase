@@ -7,12 +7,13 @@ import {
   ChevronRight,
   CircleAlert,
   Loader2,
-  Save,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { dayLabel, dayNumber, isWeekend, monthLabel } from "@/lib/date";
 import { formatMoney } from "@/lib/format";
+import { queueChannelSync, syncChannelsNow } from "@/lib/sync/auto-sync";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,9 +74,10 @@ const DAY_WIDTH = "5.25rem";
 /**
  * The ARI grid: room types down the side, dates across the top.
  *
- * Edits are staged locally so an operator can rework a whole week before
- * pushing once — a Channex push is a paid, rate-limited call, and partial
- * pushes are what create rate parity incidents.
+ * Edits push themselves once editing stops, so nobody has to remember to
+ * sync. They are still collected into one batch first — a Channex push is a
+ * paid, rate-limited call, and partial pushes are what create rate parity
+ * incidents.
  */
 export function RateCalendar({
   initialFrom,
@@ -104,8 +106,16 @@ export function RateCalendar({
 
   const key = (planId: string, date: string) => `${planId}|${date}`;
 
+  const syncRange = () => ({
+    from: visibleDates[0] ?? initialFrom,
+    days: visibleDates.length,
+  });
+
   const stage = (planId: string, date: string, patch: Edit) => {
     setEdits((prev) => ({ ...prev, [key(planId, date)]: { ...prev[key(planId, date)], ...patch } }));
+    // The edit pushes itself once editing stops. Consecutive cells coalesce
+    // into one batch, so a week of changes is still a single call.
+    queueChannelSync("rate and restriction edits", syncRange());
   };
 
   const discard = () => {
@@ -116,41 +126,8 @@ export function RateCalendar({
   const push = async () => {
     setSyncing(true);
     try {
-      const response = await fetch("/api/channex/sync", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          from: visibleDates[0] ?? initialFrom,
-          days: visibleDates.length,
-          scope: "ari",
-        }),
-      });
-      const result = (await response.json()) as {
-        ok: boolean;
-        mode: string;
-        reason?: string;
-        error?: string;
-        plan?: { availabilityValues: number; restrictionValues: number };
-      };
-
-      if (!result.ok) {
-        toast.error("Channex rejected the push", { description: result.error });
-        return;
-      }
-
-      const counts = `${result.plan?.availabilityValues ?? 0} availability + ${result.plan?.restrictionValues ?? 0} rate values`;
-      if (result.mode === "dry-run") {
-        toast.warning("Dry run — nothing was sent", {
-          description: `${result.reason}. Prepared ${counts}.`,
-        });
-      } else {
-        toast.success("Pushed to Channex", { description: `${counts} accepted.` });
-        setEdits({});
-      }
-    } catch (error) {
-      toast.error("Sync failed", {
-        description: error instanceof Error ? error.message : "Unknown error",
-      });
+      const outcome = await syncChannelsNow("manual push", syncRange());
+      if (outcome.sent) setEdits({});
     } finally {
       setSyncing(false);
     }
@@ -210,25 +187,33 @@ export function RateCalendar({
         </ToggleGroup>
 
         <div className="ml-auto flex items-center gap-2" data-tour="calendar-push">
+          <Badge variant="outline" className="gap-1.5 font-normal">
+            <RefreshCw className="size-3" />
+            Auto-sync on
+          </Badge>
           {editCount > 0 ? (
             <>
               <Badge variant="secondary" className="tabular">
-                {editCount} pending
+                {editCount} edited
               </Badge>
               <Button variant="ghost" size="sm" onClick={discard}>
                 Discard
               </Button>
             </>
           ) : null}
-          <Button size="sm" onClick={push} disabled={syncing} className="gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={push}
+            disabled={syncing}
+            className="gap-1.5"
+          >
             {syncing ? (
               <Loader2 className="size-3.5 animate-spin" />
-            ) : editCount > 0 ? (
-              <Save className="size-3.5" />
             ) : (
               <CalendarSync className="size-3.5" />
             )}
-            {editCount > 0 ? "Save & push" : "Sync now"}
+            Push now
           </Button>
         </div>
       </div>

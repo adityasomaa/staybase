@@ -28,7 +28,7 @@ export default async function PricingPage(props: {
     <>
       <PageHeader
         title="Dynamic Pricing"
-        description="Rules compound in priority order against the running rate, then per-room-type guardrails clamp the result. Nothing publishes on its own — suggestions stage on the calendar and you still push deliberately."
+        description="Rules compound in priority order against the running rate, then per-room-type guardrails clamp the result. Nothing moves until you apply it — and once applied, it pushes to the channels like any other edit."
         actions={
           <Button variant="outline" size="sm" asChild>
             <Link href="/help/dynamic-pricing-rules">How this works</Link>

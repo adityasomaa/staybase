@@ -2,59 +2,24 @@
 
 import * as React from "react";
 import { Loader2, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { syncChannelsNow } from "@/lib/sync/auto-sync";
 
-/** Triggers a full 30-day ARI push and reports what Channex accepted. */
+/**
+ * A full 30-day reconciliation push.
+ *
+ * Changes already push themselves, so this is for the cases automation cannot
+ * see: a channel that rejected an earlier batch, or an edit made in an OTA
+ * extranet that left the two sides disagreeing.
+ */
 export function SyncNowButton() {
   const [pending, setPending] = React.useState(false);
 
   const run = async () => {
     setPending(true);
     try {
-      const response = await fetch("/api/channex/sync", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ days: 30, scope: "ari" }),
-      });
-      const result = (await response.json()) as {
-        ok: boolean;
-        mode: string;
-        reason?: string;
-        error?: string;
-        plan?: {
-          availabilityValues: number;
-          restrictionValues: number;
-          unmappedRoomTypes: string[];
-          unmappedRatePlans: string[];
-        };
-      };
-
-      if (!result.ok) {
-        toast.error("Sync failed", { description: result.error });
-        return;
-      }
-
-      const skipped = [
-        ...(result.plan?.unmappedRoomTypes ?? []),
-        ...(result.plan?.unmappedRatePlans ?? []),
-      ];
-      const summary = `${result.plan?.availabilityValues ?? 0} availability + ${result.plan?.restrictionValues ?? 0} rate values${
-        skipped.length ? ` · skipped ${skipped.join(", ")}` : ""
-      }`;
-
-      if (result.mode === "dry-run") {
-        toast.warning("Dry run — nothing was sent", {
-          description: `${result.reason}. Prepared ${summary}.`,
-        });
-      } else {
-        toast.success("Channex accepted the push", { description: summary });
-      }
-    } catch (error) {
-      toast.error("Sync failed", {
-        description: error instanceof Error ? error.message : "Unknown error",
-      });
+      await syncChannelsNow("manual reconciliation", { days: 30 });
     } finally {
       setPending(false);
     }

@@ -83,6 +83,14 @@ reads the demo dataset, and swapping it to Drizzle is a drop-in change because
 - **Dry-run by default.** Without `CHANNEX_API_KEY`, `/api/channex/sync`
   returns `mode: "dry-run"` with the exact batch counts it *would* have sent,
   instead of failing.
+- **Every change pushes itself.** The operator asked for this explicitly: a
+  manual push fails silently, because the person who forgets it never finds
+  out. `lib/sync/auto-sync.ts` queues a push after any change an OTA needs to
+  know about — rate edits, blocks, applied pricing, new inventory, a direct
+  booking, a new channel. Changes coalesce for ~1.2s first, so a week of edits
+  is still one batch; that is the only part of the old staging model worth
+  keeping, since a partial batch is how rate parity breaks. Housekeeping status
+  deliberately does not trigger a push — it does not change what is sellable.
 - **Unmapped entities are skipped and reported.** Room types and rate plans
   with no `channexId` are excluded from a push and named in the response.
   Silent skipping is how rate parity breaks.

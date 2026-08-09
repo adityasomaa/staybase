@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Plug } from "lucide-react";
 import { toast } from "sonner";
 
+import { queueChannelSync } from "@/lib/sync/auto-sync";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -55,9 +56,12 @@ export function ConnectChannelForm({
     setPending(false);
     toast.success(`${otaName} connection requested`, {
       description: autoMap
-        ? `Channex will match ${roomTypeCount} room types and ${ratePlanCount} rate plans by name — review the mapping before pushing.`
-        : "Map room types and rate plans manually on the Channels page before your first push.",
+        ? `Channex will match ${roomTypeCount} room types and ${ratePlanCount} rate plans by name — review the mapping, since unmapped rows are skipped.`
+        : "Map room types and rate plans manually on the Channels page, or the new channel receives nothing.",
     });
+    // Seed the new channel with the current window rather than leaving it empty
+    // until something else happens to trigger a push.
+    queueChannelSync(`the ${otaName} connection`);
     router.push("/channels");
   };
 

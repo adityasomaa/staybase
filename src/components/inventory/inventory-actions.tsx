@@ -5,6 +5,7 @@ import { BedDouble, DoorOpen, Plus, Tags } from "lucide-react";
 import { toast } from "sonner";
 
 import { formatMoney, mealPlanLabels } from "@/lib/format";
+import { queueChannelSync } from "@/lib/sync/auto-sync";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -228,9 +229,10 @@ function RoomTypeDialog({ open, onClose }: { open: boolean; onClose: () => void 
               onClose();
               toast.success(`${title} created`, {
                 description: createBar
-                  ? `${count} rooms · ${derivedCode} · Best Available Rate added. Map it on the Channels page before pushing.`
+                  ? `${count} rooms · ${derivedCode} · Best Available Rate added. Map it on the Channels page so it is not skipped.`
                   : `${count} rooms · ${derivedCode}. Add a rate plan before it can be sold.`,
               });
+              queueChannelSync("a new room type");
             }}
           >
             Create room type
@@ -419,9 +421,10 @@ function RatePlanDialog({
               toast.success(`${title} created`, {
                 description:
                   mode === "derived"
-                    ? `Derived at ${offset}% from ${parents.find((p) => p.id === parentId)?.code ?? "parent"}. Map it before pushing.`
+                    ? `Derived at ${offset}% from ${parents.find((p) => p.id === parentId)?.code ?? "parent"}. Map it so it is not skipped.`
                     : `Manual pricing on ${roomType?.title}. Set rates in the ARI grid.`,
               });
+              queueChannelSync("a new rate plan");
             }}
           >
             Create rate plan
@@ -526,6 +529,7 @@ function RoomDialog({
                   description: `${roomTypes.find((rt) => rt.id === roomTypeId)?.title} · ${parsed.join(", ")}`,
                 },
               );
+              queueChannelSync("new rooms");
             }}
           >
             Add rooms

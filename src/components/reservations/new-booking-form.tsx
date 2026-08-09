@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { addDays, diffDays, formatDate } from "@/lib/date";
 import { channelLabels, formatMoney, mealPlanLabels } from "@/lib/format";
+import { queueChannelSync } from "@/lib/sync/auto-sync";
 import type { ChannelCode } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,6 +116,8 @@ export function NewBookingForm({
     toast.success("Reservation created", {
       description: `${guestName} · ${formatDate(checkIn)} → ${formatDate(checkOut)} · ${formatMoney(total)}`,
     });
+    // A direct booking consumes inventory the channels still believe is free.
+    queueChannelSync("a direct booking", { from: checkIn });
     router.push("/reservations");
   };
 

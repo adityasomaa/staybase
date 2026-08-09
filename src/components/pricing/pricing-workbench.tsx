@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 import { formatDateShort } from "@/lib/date";
 import { formatMoney, formatMoneyCompact, formatPercent } from "@/lib/format";
+import { queueChannelSync } from "@/lib/sync/auto-sync";
 import { describeAdjustment, ruleKindLabels, suggestPrice } from "@/lib/pricing";
 import type { PricingGuardrail, PricingRule } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -150,10 +151,10 @@ export function PricingWorkbench({
     setApplying(true);
     await new Promise((resolve) => setTimeout(resolve, 700));
     setApplying(false);
-    toast.success(`${changed.length} rates staged on the calendar`, {
-      description:
-        "They behave like any manual edit — open Rates & Availability and push when you are ready.",
+    toast.success(`${changed.length} rates applied to the calendar`, {
+      description: "They behave like any manual edit, which means they push themselves.",
     });
+    queueChannelSync("applied pricing suggestions", { from: today });
   };
 
   return (
