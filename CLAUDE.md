@@ -53,7 +53,7 @@ src/
     api/health/      readiness probe
     actions.ts       billing lock + onboarding tour server actions
   components/        ui/ (shadcn primitives) + one folder per feature
-    brand/           the mark and lockup, rebuilt as vector from the logo
+    brand/           the mark and lockup, cropped from the supplied artwork
   db/                Drizzle schema + lazily-created client
   lib/
     channex/         API client, payload types, PMS <-> Channex mapping
@@ -87,15 +87,22 @@ reads the demo dataset, and swapping it to Drizzle is a drop-in change because
 - **Dry-run by default.** Without `CHANNEX_API_KEY`, `/api/channex/sync`
   returns `mode: "dry-run"` with the exact batch counts it *would* have sent,
   instead of failing.
-- **One blue, from the logo.** The accent is the mark's own blue,
-  `rgb(22 104 255)` = `oklch(0.5695 0.2367 261.6)`; `--primary` sits a little
-  under it so white text clears 4.5:1, and the mark reads that token rather
-  than hard-coding a hex. Status colour (emerald/amber/red/sky) stays put — it
-  has to read as data, not brand. `chart-4` moved to 305 to stay clear of the
-  now-blue `chart-1`. The mark is vector in `components/brand`, never the
-  source PNG: that render is a glow on black and dies on a light canvas and at
-  favicon size. `app/icon.svg` carries its own blue background because a tab
-  icon has no theme to inherit.
+- **The logo is the supplied artwork, cropped — not redrawn.** An earlier pass
+  rebuilt it as vector and the operator rejected that: use the file as it is.
+  `public/brand/` holds two crops of the source render, shipped at the
+  size they actually display at. Its background is transparent, but "Stay" is
+  painted near-black navy — 18.6:1 on the light canvas, **1.13:1 on the dark
+  one**, where it disappears, and the mark's shadow facets do the same. So the
+  artwork always sits on a white plate rather than being filtered or
+  recoloured, and `app/icon.png` carries its own white plate because a tab icon
+  has no theme to inherit. Both use `unoptimized`; without it Next fetches a
+  1080px variant of a 32px logo.
+- **One blue, sampled from that artwork.** `rgb(0 80 240)` =
+  `oklch(0.51 0.247 262.5)`, the most common opaque blue across mark and
+  wordmark. It clears 6.1:1 on white, so `--primary` uses it at full strength.
+  Status colour (emerald/amber/red/sky) stays put — it has to read as data, not
+  brand — and `chart-4` moved to hue 305 to stay clear of the now-blue
+  `chart-1`.
 - **Every change pushes itself.** The operator asked for this explicitly: a
   manual push fails silently, because the person who forgets it never finds
   out. `lib/sync/auto-sync.ts` queues a push after any change an OTA needs to

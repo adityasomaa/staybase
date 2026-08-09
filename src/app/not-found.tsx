@@ -1,12 +1,12 @@
 import Link from "next/link";
 
-import { StaybaseLogo } from "@/components/brand/staybase-logo";
+import { StaybaseLockup } from "@/components/brand/staybase-logo";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
-      <StaybaseLogo className="mb-2" />
+      <StaybaseLockup className="mb-2" />
       <p className="text-muted-foreground tabular text-sm font-medium">404</p>
       <h1 className="text-2xl font-semibold tracking-tight">This page checked out</h1>
       <p className="text-muted-foreground max-w-md text-sm text-pretty">

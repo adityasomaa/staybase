@@ -79,10 +79,7 @@ export function AppSidebar({
                   className="data-[state=open]:bg-sidebar-accent"
                   aria-label="Switch property"
                 >
-                  {/* SidebarMenuButton sizes every descendant svg with
-                      [&_svg]:size-4, which outranks a plain size-8 — wrapping
-                      does not help, so the mark has to override it outright. */}
-                  <StaybaseMark className="size-8! shrink-0" />
+                  <StaybaseMark />
                   <div className="grid flex-1 text-left leading-tight">
                     <span className="truncate text-sm font-extrabold tracking-tight">
                       Stay<span className="text-primary">Base</span>
