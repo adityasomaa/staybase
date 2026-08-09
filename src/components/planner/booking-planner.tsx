@@ -100,6 +100,31 @@ export interface PlannerRowView {
 const CELL = 46;
 const ROOM_COL = 168;
 
+/**
+ * Where a bar sits on a room's track.
+ *
+ * A bar runs from the middle of its first column to the middle of its last,
+ * because both of those columns belong to two stays at once: a room vacated on
+ * the 5th can be sold again on the 5th. Giving the arrival and departure days
+ * half a column each leaves the other half free, so a same-day changeover
+ * reads as two bars meeting rather than one bar covering another.
+ *
+ * Returns null when the bar falls entirely outside the visible window.
+ */
+function barGeometry(barOffset: number, span: number, windowOffset: number, columns: number) {
+  const track = columns * CELL;
+  const start = (barOffset - windowOffset) * CELL + CELL / 2;
+  const end = start + span * CELL;
+  if (end <= 0 || start >= track) return null;
+  const left = Math.max(0, start);
+  return {
+    left,
+    width: Math.min(end, track) - left,
+    clippedLeft: start < 0,
+    clippedRight: end > track,
+  };
+}
+
 export const blockReasonLabels: Record<BlockReason, string> = {
   maintenance: "Maintenance",
   renovation: "Renovation",
@@ -431,16 +456,22 @@ export function BookingPlanner({
                       ))}
 
                       {blocks.map((block) => {
-                        const left = (block.offset - offset) * CELL;
-                        const width = block.span * CELL;
-                        if (left + width <= 0 || left >= windowDates.length * CELL) return null;
+                        // Blocks use the same inclusive-start, exclusive-end
+                        // convention as a stay, so they are drawn the same way.
+                        const geo = barGeometry(
+                          block.offset,
+                          block.span,
+                          offset,
+                          windowDates.length,
+                        );
+                        if (!geo) return null;
                         return (
                           <div
                             key={block.id}
                             className="bg-destructive/20 border-destructive/40 absolute top-1 bottom-1 flex items-center gap-1 overflow-hidden rounded-md border px-1.5"
                             style={{
-                              left: Math.max(0, left) + 2,
-                              width: Math.min(width, windowDates.length * CELL - Math.max(0, left)) - 4,
+                              left: geo.left + 2,
+                              width: Math.max(2, geo.width - 4),
                               backgroundImage:
                                 "repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.05) 4px, rgba(0,0,0,0.05) 8px)",
                             }}
@@ -462,10 +493,8 @@ export function BookingPlanner({
                       })}
 
                       {row.stays.map((s) => {
-                        const left = (s.offset - offset) * CELL;
-                        const width = s.span * CELL;
-                        if (left + width <= 0 || left >= windowDates.length * CELL) return null;
-                        const clampedLeft = Math.max(0, left);
+                        const geo = barGeometry(s.offset, s.span, offset, windowDates.length);
+                        if (!geo) return null;
                         return (
                           <button
                             key={s.reservationId}
@@ -475,14 +504,14 @@ export function BookingPlanner({
                             className={cn(
                               "absolute top-1 bottom-1 flex items-center gap-1 overflow-hidden px-1.5 text-left shadow-sm transition-[filter] hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none",
                               statusBar[s.status] ?? "bg-muted-foreground/60 text-white",
-                              s.clippedStart || left < 0 ? "rounded-l-none" : "rounded-l-md",
-                              s.clippedEnd ? "rounded-r-none" : "rounded-r-md",
+                              s.clippedStart || geo.clippedLeft
+                                ? "rounded-l-none"
+                                : "rounded-l-md",
+                              s.clippedEnd || geo.clippedRight
+                                ? "rounded-r-none"
+                                : "rounded-r-md",
                             )}
-                            style={{
-                              left: clampedLeft + 2,
-                              width:
-                                Math.min(width, windowDates.length * CELL - clampedLeft) - 4,
-                            }}
+                            style={{ left: geo.left + 2, width: Math.max(2, geo.width - 4) }}
                           >
                             {s.balance > 0 ? (
                               <CircleAlert className="size-3 shrink-0 opacity-90" />
