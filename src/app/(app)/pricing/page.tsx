@@ -15,7 +15,13 @@ import {
 
 export const metadata: Metadata = { title: "Dynamic Pricing" };
 
-export default function PricingPage() {
+const tabs = ["rules", "preview", "guardrails"] as const;
+
+export default async function PricingPage(props: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const tab = tabs.find((value) => value === searchParams.tab) ?? "rules";
   const { inputs } = getPricingInputs(30);
 
   return (
@@ -38,6 +44,7 @@ export default function PricingPage() {
           .filter((rt) => rt.propertyId === activeProperty.id)
           .map((rt) => ({ id: rt.id, title: rt.title }))}
         today={TODAY}
+        initialTab={tab}
       />
     </>
   );

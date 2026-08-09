@@ -209,7 +209,7 @@ export function RateCalendar({
           </ToggleGroupItem>
         </ToggleGroup>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2" data-tour="calendar-push">
           {editCount > 0 ? (
             <>
               <Badge variant="secondary" className="tabular">
@@ -244,7 +244,7 @@ export function RateCalendar({
         </div>
       ) : null}
 
-      <Card className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0" data-tour="calendar-grid">
         <CardContent className="p-0">
           {/* The scroller owns its own height so the sticky header below
               anchors inside it. Left at auto height, `sticky top-0` resolves

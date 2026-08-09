@@ -87,25 +87,29 @@ export default async function ChannelsPage(props: {
         description="Connectivity is provided by Channex. STAYBASE pushes availability, rates and restrictions in one batch, and receives bookings back over a signed webhook."
         actions={
           <>
-            <SyncNowButton />
-            <AddChannelDialog
-              openOnMount={searchParams.add === "1"}
-              options={otaCatalog.map((ota) => ({
-                slug: ota.slug,
-                name: ota.name,
-                category: ota.category,
-                categoryLabel: otaCategoryLabels[ota.category],
-                summary: ota.summary,
-                regions: ota.regions,
-                commissionRange: ota.commissionRange,
-                averageSetupDays: ota.averageSetupDays,
-                connected: channelConnections.some(
-                  (channel) =>
-                    channel.name.toLowerCase() === ota.name.toLowerCase() &&
-                    channel.state === "connected",
-                ),
-              }))}
-            />
+            <span data-tour="channels-sync">
+              <SyncNowButton />
+            </span>
+            <span data-tour="channels-add">
+              <AddChannelDialog
+                openOnMount={searchParams.add === "1"}
+                options={otaCatalog.map((ota) => ({
+                  slug: ota.slug,
+                  name: ota.name,
+                  category: ota.category,
+                  categoryLabel: otaCategoryLabels[ota.category],
+                  summary: ota.summary,
+                  regions: ota.regions,
+                  commissionRange: ota.commissionRange,
+                  averageSetupDays: ota.averageSetupDays,
+                  connected: channelConnections.some(
+                    (channel) =>
+                      channel.name.toLowerCase() === ota.name.toLowerCase() &&
+                      channel.state === "connected",
+                  ),
+                }))}
+              />
+            </span>
           </>
         }
       />
@@ -154,7 +158,7 @@ export default async function ChannelsPage(props: {
         </Card>
       ) : null}
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3" data-tour="channels-mapping">
         {channelConnections.map((channel) => {
           const mappingRatio = channel.mappedRoomTypes / Math.max(1, channel.totalRoomTypes);
           return (
@@ -228,7 +232,7 @@ export default async function ChannelsPage(props: {
         })}
       </div>
 
-      <Card className="gap-4">
+      <Card className="gap-4" data-tour="channels-journal">
         <CardHeader>
           <CardTitle>Sync journal</CardTitle>
           <CardDescription>

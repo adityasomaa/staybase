@@ -35,10 +35,13 @@ import {
 
 export const metadata: Metadata = { title: "Inventory" };
 
+const tabs = ["room-types", "rate-plans", "rooms"] as const;
+
 export default async function InventoryPage(props: {
-  searchParams: Promise<{ add?: string }>;
+  searchParams: Promise<{ add?: string; tab?: string }>;
 }) {
   const searchParams = await props.searchParams;
+  const tab = tabs.find((value) => value === searchParams.tab) ?? "room-types";
   const propertyRoomTypes = roomTypes.filter((rt) => rt.propertyId === activeProperty.id);
   const performance = getRevenueByRoomType();
   const unmapped =
@@ -51,6 +54,7 @@ export default async function InventoryPage(props: {
         title="Inventory"
         description="Room types, physical rooms and rate plans. Everything defined here is what Channex maps onto each channel's own product catalogue."
         actions={
+          <span data-tour="inventory-new">
           <InventoryActions
             initial={
               searchParams.add === "room-type"
@@ -71,6 +75,7 @@ export default async function InventoryPage(props: {
                 .map((rp) => ({ id: rp.id, title: rp.title, code: rp.code })),
             }))}
           />
+          </span>
         }
       />
 
@@ -101,14 +106,18 @@ export default async function InventoryPage(props: {
         />
       </div>
 
-      <Tabs defaultValue="room-types">
+      {/* The tab comes from the URL so a tutorial step can land on the right
+          panel. `key` remounts it when that parameter changes — `defaultValue`
+          alone is only read on mount, and a step followed from another page is
+          a client-side navigation, not a fresh mount. */}
+      <Tabs key={tab} defaultValue={tab}>
         <TabsList>
           <TabsTrigger value="room-types">Room types</TabsTrigger>
           <TabsTrigger value="rate-plans">Rate plans</TabsTrigger>
           <TabsTrigger value="rooms">Rooms</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="room-types" className="mt-4 space-y-3">
+        <TabsContent value="room-types" className="mt-4 space-y-3" data-tour="inventory-room-types">
           {propertyRoomTypes.map((roomType) => {
             const plans = ratePlans.filter((rp) => rp.roomTypeId === roomType.id);
             const stats = performance.find((p) => p.code === roomType.code);
@@ -180,7 +189,7 @@ export default async function InventoryPage(props: {
           })}
         </TabsContent>
 
-        <TabsContent value="rate-plans" className="mt-4">
+        <TabsContent value="rate-plans" className="mt-4" data-tour="inventory-rate-plans">
           <Card className="overflow-hidden p-0">
             <CardContent className="p-0">
               <div className="scrollbar-thin overflow-x-auto">
@@ -245,7 +254,7 @@ export default async function InventoryPage(props: {
           </Card>
         </TabsContent>
 
-        <TabsContent value="rooms" className="mt-4">
+        <TabsContent value="rooms" className="mt-4" data-tour="inventory-rooms">
           <Card className="overflow-hidden p-0">
             <CardContent className="p-0">
               <div className="scrollbar-thin overflow-x-auto">

@@ -154,7 +154,7 @@ export default function BillingPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="gap-4 lg:col-span-2">
+        <Card className="gap-4 lg:col-span-2" data-tour="billing-invoices">
           <CardHeader>
             <CardTitle>Invoices</CardTitle>
             <CardDescription>Six most recent billing periods.</CardDescription>
@@ -206,7 +206,7 @@ export default function BillingPage() {
         </Card>
 
         <div className="space-y-4">
-          <Card className="gap-4">
+          <Card className="gap-4" data-tour="billing-payment-method">
             <CardHeader>
               <CardTitle className="text-base">Payment method</CardTitle>
             </CardHeader>

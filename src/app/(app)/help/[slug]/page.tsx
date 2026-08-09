@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Clock } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getArticle, helpArticles, helpCategoryLabels } from "@/lib/help/articles";
+import { tourHref, tourTargets } from "@/lib/help/targets";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -67,15 +68,33 @@ export default async function HelpArticlePage(props: Props) {
                 </p>
               ))}
               {section.steps ? (
-                <ol className="space-y-2">
-                  {section.steps.map((step, stepIndex) => (
-                    <li key={step} className="flex gap-3 text-sm">
-                      <span className="bg-primary/10 text-primary tabular flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
-                        {stepIndex + 1}
-                      </span>
-                      <span className="pt-0.5 text-pretty">{step}</span>
-                    </li>
-                  ))}
+                <ol className="space-y-2.5">
+                  {section.steps.map((step, stepIndex) => {
+                    const target = step.target ? tourTargets[step.target] : undefined;
+                    return (
+                      <li key={step.text} className="flex gap-3 text-sm">
+                        <span className="bg-primary/10 text-primary tabular flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
+                          {stepIndex + 1}
+                        </span>
+                        <div className="min-w-0 space-y-1.5 pt-0.5">
+                          <p className="text-pretty">{step.text}</p>
+                          {step.target && target ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 gap-1.5 px-2 text-xs"
+                              asChild
+                            >
+                              <Link href={tourHref(step.target, article.slug)}>
+                                {target.label}
+                                <ArrowUpRight className="size-3.5" />
+                              </Link>
+                            </Button>
+                          ) : null}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ol>
               ) : null}
             </section>

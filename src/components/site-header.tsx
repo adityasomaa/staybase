@@ -74,27 +74,28 @@ export function SiteHeader({
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setOpen(true)}
-              className="text-muted-foreground hidden h-8 w-48 justify-start gap-2 px-2.5 font-normal lg:flex xl:w-60"
-            >
-              <Search className="size-3.5 shrink-0" />
-              <span className="truncate">Search anything…</span>
-              <kbd className="bg-muted text-muted-foreground pointer-events-none ml-auto inline-flex h-5 shrink-0 items-center rounded border px-1.5 text-[10px] font-medium">
-                ⌘K
-              </kbd>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 lg:hidden"
-              onClick={() => setOpen(true)}
-              aria-label="Search"
-            >
-              <Search className="size-4" />
-            </Button>
+            {/* Both triggers sit in one wrapper so a tutorial step has a single
+                element to point at, whichever of the two is visible. */}
+            <div className="flex items-center" data-tour="global-search">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(true)}
+                className="text-muted-foreground hidden h-8 w-48 justify-start gap-2 px-2.5 font-normal lg:flex xl:w-60"
+              >
+                <Search className="size-3.5 shrink-0" />
+                <span className="truncate">Search anything…</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 lg:hidden"
+                onClick={() => setOpen(true)}
+                aria-label="Search"
+              >
+                <Search className="size-4" />
+              </Button>
+            </div>
 
             <ThemeToggle />
 

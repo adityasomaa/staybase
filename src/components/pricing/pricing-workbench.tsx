@@ -85,12 +85,15 @@ export function PricingWorkbench({
   initialGuardrails,
   roomTypes,
   today,
+  initialTab = "rules",
 }: {
   inputs: PricingInputView[];
   initialRules: PricingRule[];
   initialGuardrails: PricingGuardrail[];
   roomTypes: { id: string; title: string }[];
   today: string;
+  /** Panel to open on arrival, so a tutorial step can land on the right one. */
+  initialTab?: "rules" | "preview" | "guardrails";
 }) {
   const [rules, setRules] = React.useState(initialRules);
   const [guardrails, setGuardrails] = React.useState(initialGuardrails);
@@ -179,7 +182,9 @@ export function PricingWorkbench({
         />
       </div>
 
-      <Tabs defaultValue="rules">
+      {/* Keyed so a step that arrives by client-side navigation still opens the
+          panel it asked for; rules and guardrails state live above this. */}
+      <Tabs key={initialTab} defaultValue={initialTab}>
         <div className="flex flex-wrap items-center gap-2">
           <TabsList>
             <TabsTrigger value="rules">Rules</TabsTrigger>
@@ -214,7 +219,7 @@ export function PricingWorkbench({
           </Button>
         </div>
 
-        <TabsContent value="rules" className="mt-4 space-y-3">
+        <TabsContent value="rules" className="mt-4 space-y-3" data-tour="pricing-rules">
           {[...rules]
             .sort((a, b) => a.priority - b.priority)
             .map((rule) => {
@@ -261,7 +266,7 @@ export function PricingWorkbench({
             })}
         </TabsContent>
 
-        <TabsContent value="preview" className="mt-4 space-y-4">
+        <TabsContent value="preview" className="mt-4 space-y-4" data-tour="pricing-preview">
           <Card className="gap-4">
             <CardHeader>
               <CardTitle>Current versus suggested</CardTitle>
@@ -405,7 +410,7 @@ export function PricingWorkbench({
           ) : null}
         </TabsContent>
 
-        <TabsContent value="guardrails" className="mt-4">
+        <TabsContent value="guardrails" className="mt-4" data-tour="pricing-guardrails">
           <Card className="gap-4">
             <CardHeader>
               <CardTitle>Guardrails</CardTitle>

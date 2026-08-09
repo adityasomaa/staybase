@@ -287,6 +287,7 @@ export function BookingPlanner({
           variant="outline"
           size="sm"
           className="ml-auto gap-1.5"
+          data-tour="planner-block"
           onClick={() =>
             setBlockDraft({
               roomId: visibleRows[0]?.roomId ?? rows[0].roomId,
@@ -345,7 +346,7 @@ export function BookingPlanner({
         </div>
       ) : null}
 
-      <Card className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0" data-tour="planner-grid">
         <CardContent className="p-0">
           <div className="scrollbar-thin max-h-[62vh] overflow-auto">
             <div style={{ minWidth: ROOM_COL + windowDates.length * CELL }}>

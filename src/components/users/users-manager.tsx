@@ -201,13 +201,13 @@ export function UsersManager({
             ))}
           </SelectContent>
         </Select>
-        <Button size="sm" className="gap-1.5" onClick={openInvite}>
+        <Button size="sm" className="gap-1.5" onClick={openInvite} data-tour="users-invite">
           <UserPlus className="size-3.5" />
           Invite user
         </Button>
       </div>
 
-      <Card className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0" data-tour="users-directory">
         <CardContent className="p-0">
           {filtered.length === 0 ? (
             <EmptyState

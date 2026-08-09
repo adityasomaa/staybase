@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { OnboardingTour } from "@/components/onboarding-tour";
 import { SiteHeader } from "@/components/site-header";
+import { TutorialSpotlight } from "@/components/help/tutorial-spotlight";
 import { SuspendedWorkspace } from "@/components/billing/suspended-workspace";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
@@ -70,6 +71,7 @@ export default async function AppLayout({
         <div className="flex flex-1 flex-col gap-5 p-4 lg:p-6">{children}</div>
       </SidebarInset>
       {seenTour ? null : <OnboardingTour />}
+      <TutorialSpotlight />
     </SidebarProvider>
   );
 }

@@ -31,11 +31,26 @@ export const helpArticles: HelpArticle[] = [
           "The order matters because you cannot map a channel until rate plans exist, and you cannot sell a rate plan until its room type has rooms.",
         ],
         steps: [
-          "Create room types under Inventory, with the real number of sellable rooms.",
-          "Add the physical rooms so the front desk can assign them.",
-          "Add at least one rate plan per room type — usually a Best Available Rate.",
-          "Open Rates & Availability and set prices for the next 60 days.",
-          "Connect a channel and map every room type and rate plan you intend to sell.",
+          {
+            text: "Create room types under Inventory, with the real number of sellable rooms.",
+            target: "inventory-room-types",
+          },
+          {
+            text: "Add the physical rooms so the front desk can assign them.",
+            target: "inventory-rooms",
+          },
+          {
+            text: "Add at least one rate plan per room type — usually a Best Available Rate.",
+            target: "inventory-rate-plans",
+          },
+          {
+            text: "Open Rates & Availability and set prices for the next 60 days.",
+            target: "calendar-grid",
+          },
+          {
+            text: "Connect a channel and map every room type and rate plan you intend to sell.",
+            target: "channels-add",
+          },
         ],
       },
       {
@@ -69,9 +84,18 @@ export const helpArticles: HelpArticle[] = [
           "That is deliberate. A push is a rate-limited call and a half-finished push is exactly how rate parity incidents start — it is safer to rework a whole week and send it once.",
         ],
         steps: [
-          "Click a cell to open rate, minimum stay and stop sell.",
-          "Repeat across the dates you want to change; the pending counter tracks them.",
-          "Press Save & push to send the whole batch, or Discard to drop it.",
+          {
+            text: "Click a cell to open rate, minimum stay and stop sell.",
+            target: "calendar-grid",
+          },
+          {
+            text: "Repeat across the dates you want to change; the pending counter tracks them.",
+            target: "calendar-push",
+          },
+          {
+            text: "Press Save & push to send the whole batch, or Discard to drop it.",
+            target: "calendar-push",
+          },
         ],
       },
       {
@@ -104,9 +128,18 @@ export const helpArticles: HelpArticle[] = [
           "Blocking removes a room from sale for a date range and pushes the reduced availability to every connected channel on the next sync.",
         ],
         steps: [
-          "Click any empty cell on the room's row, or use Block room.",
-          "Pick the date range and a reason — maintenance, renovation, deep clean, owner use or quarantine.",
-          "Save. The room is struck out on the calendar and excluded from availability.",
+          {
+            text: "Click any empty cell on the room's row, or use Block room.",
+            target: "planner-block",
+          },
+          {
+            text: "Pick the date range and a reason — maintenance, renovation, deep clean, owner use or quarantine.",
+            target: "planner-block",
+          },
+          {
+            text: "Save. The room is struck out on the calendar and excluded from availability.",
+            target: "planner-grid",
+          },
         ],
       },
       {
@@ -133,10 +166,18 @@ export const helpArticles: HelpArticle[] = [
           "STAYBASE never talks to the OTA directly. It talks to Channex, and Channex fans out.",
         ],
         steps: [
-          "Open Channels and press Add channel.",
-          "Pick the OTA and follow its specific guide — the credentials and the extranet path differ per channel.",
-          "Paste the identifiers, save, then map every room type and rate plan.",
-          "Push seven days first and compare against the OTA extranet before widening the window.",
+          { text: "Open Channels and press Add channel.", target: "channels-add" },
+          {
+            text: "Pick the OTA and follow its specific guide — the credentials and the extranet path differ per channel.",
+          },
+          {
+            text: "Paste the identifiers, save, then map every room type and rate plan.",
+            target: "channels-mapping",
+          },
+          {
+            text: "Push seven days first and compare against the OTA extranet before widening the window.",
+            target: "channels-sync",
+          },
         ],
       },
       {
@@ -171,9 +212,18 @@ export const helpArticles: HelpArticle[] = [
           "The maximum daily movement exists to stop a demand spike from doubling a rate overnight, which channels treat as suspicious and guests remember.",
         ],
         steps: [
-          "Set the floor and ceiling per room type before enabling any rule.",
-          "Enable one rule at a time and read the preview.",
-          "Apply to the calendar when the suggestions look right — they stage like any other edit, so nothing reaches a channel until you push.",
+          {
+            text: "Set the floor and ceiling per room type before enabling any rule.",
+            target: "pricing-guardrails",
+          },
+          {
+            text: "Enable one rule at a time and read the preview.",
+            target: "pricing-rules",
+          },
+          {
+            text: "Apply to the calendar when the suggestions look right — they stage like any other edit, so nothing reaches a channel until you push.",
+            target: "pricing-preview",
+          },
         ],
       },
     ],
@@ -193,10 +243,13 @@ export const helpArticles: HelpArticle[] = [
           "Owners are the exception — they always see every property, and the assignment control is disabled for them.",
         ],
         steps: [
-          "Open Users and press Invite user.",
-          "Enter the email and pick the role.",
-          "Tick the properties they should reach.",
-          "Send. The invite stays pending until they accept, and a pending user can be revoked with no side effects.",
+          { text: "Open Users and press Invite user.", target: "users-invite" },
+          { text: "Enter the email and pick the role.", target: "users-invite" },
+          { text: "Tick the properties they should reach.", target: "users-invite" },
+          {
+            text: "Send. The invite stays pending until they accept, and a pending user can be revoked with no side effects.",
+            target: "users-directory",
+          },
         ],
       },
       {
@@ -229,9 +282,17 @@ export const helpArticles: HelpArticle[] = [
           "Suspension locks the app to the billing page. It deliberately does not stop the Channex webhook — inbound bookings keep being accepted, because losing reservations would punish your guests for an unpaid invoice. Outbound rate and availability pushes do stop.",
         ],
         steps: [
-          "Open Billing to see the outstanding invoice and the grace deadline.",
-          "Pay the invoice, or update the card if the failure was a declined charge.",
-          "Access is restored immediately on payment; no re-sync is needed because inbound never stopped.",
+          {
+            text: "Open Billing to see the outstanding invoice and the grace deadline.",
+            target: "billing-invoices",
+          },
+          {
+            text: "Pay the invoice, or update the card if the failure was a declined charge.",
+            target: "billing-payment-method",
+          },
+          {
+            text: "Access is restored immediately on payment; no re-sync is needed because inbound never stopped.",
+          },
         ],
       },
     ],
@@ -251,9 +312,11 @@ export const helpArticles: HelpArticle[] = [
           "It runs on the server, so it searches the whole reservation ledger rather than only what the current page happens to have loaded.",
         ],
         steps: [
-          "Press ⌘K, or Ctrl+K on Windows.",
-          "Type a reference like SB-24021, a guest name, a room number, or a question like 'how do I block a room'.",
-          "Press Enter to jump straight to the top result.",
+          { text: "Press Ctrl+K, or ⌘K on a Mac.", target: "global-search" },
+          {
+            text: "Type a reference like SB-24021, a guest name, a room number, or a question like 'how do I block a room'.",
+          },
+          { text: "Press Enter to jump straight to the top result." },
         ],
       },
     ],
@@ -272,9 +335,18 @@ export const helpArticles: HelpArticle[] = [
           "Most disagreements are one of three things, and checking them in this order is faster than reading logs.",
         ],
         steps: [
-          "Mapping — open Channels and look for a room type mapped to fewer channels than the others.",
-          "Rejected pushes — the sync journal shows which batches were rejected and why. A rejected batch means the channel is running on stale data.",
-          "Blocks and out-of-order rooms — these reduce sellable inventory locally the moment they are saved, but a channel only learns about them on the next push.",
+          {
+            text: "Mapping — open Channels and look for a room type mapped to fewer channels than the others.",
+            target: "channels-mapping",
+          },
+          {
+            text: "Rejected pushes — the sync journal shows which batches were rejected and why. A rejected batch means the channel is running on stale data.",
+            target: "channels-journal",
+          },
+          {
+            text: "Blocks and out-of-order rooms — these reduce sellable inventory locally the moment they are saved, but a channel only learns about them on the next push.",
+            target: "planner-grid",
+          },
         ],
       },
       {

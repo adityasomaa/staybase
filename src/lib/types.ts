@@ -397,6 +397,53 @@ export type HelpCategory =
   | "users"
   | "pricing";
 
+/**
+ * A place in the app a tutorial step can send the reader to.
+ *
+ * Steps describe an action, and an action always happens somewhere specific —
+ * usually a control buried under a tab. Naming that place as an id rather than
+ * a URL keeps the route, the tab and the wording of the button in one registry
+ * (`lib/help/targets.ts`) instead of spread across every article.
+ */
+export type TourTargetId =
+  | "global-search"
+  | "inventory-new"
+  | "inventory-room-types"
+  | "inventory-rate-plans"
+  | "inventory-rooms"
+  | "calendar-grid"
+  | "calendar-push"
+  | "planner-grid"
+  | "planner-block"
+  | "channels-add"
+  | "channels-mapping"
+  | "channels-sync"
+  | "channels-journal"
+  | "pricing-rules"
+  | "pricing-preview"
+  | "pricing-guardrails"
+  | "users-invite"
+  | "users-directory"
+  | "billing-invoices"
+  | "billing-payment-method";
+
+export interface TourTarget {
+  /** Route the step happens on. */
+  href: string;
+  /** Tab to open on arrival, for pages that group their content in tabs. */
+  tab?: string;
+  /** Label for the button on the step itself. */
+  label: string;
+  /** What the spotlight says once it has found the element. */
+  hint: string;
+}
+
+export interface HelpStep {
+  text: string;
+  /** Where in the app this step is carried out, if it is carried out here. */
+  target?: TourTargetId;
+}
+
 export interface HelpArticle {
   slug: string;
   title: string;
@@ -404,7 +451,7 @@ export interface HelpArticle {
   summary: string;
   minutes: number;
   keywords: string[];
-  body: { heading: string; paragraphs: string[]; steps?: string[] }[];
+  body: { heading: string; paragraphs: string[]; steps?: HelpStep[] }[];
 }
 
 /* -------------------------------------------------------------------------- */
