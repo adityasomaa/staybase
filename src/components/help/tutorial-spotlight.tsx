@@ -15,6 +15,16 @@ import { walkStepHref, walkStepIndex, walkthrough, walkthroughLength } from "@/l
 const HUNT_MS = 4000;
 const HUNT_INTERVAL_MS = 100;
 
+/** Breathing room around the hole in the dimmer, clearing the ring. */
+const HOLE_PAD = 8;
+
+interface Hole {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
 /**
  * The half of a tutorial that happens inside the app.
  *
@@ -39,6 +49,8 @@ export function TutorialSpotlight() {
   const step = stepIndex === null ? null : walkthrough[stepIndex];
   const target = getTourTarget(focus);
 
+  const [hole, setHole] = React.useState<Hole | null>(null);
+
   React.useEffect(() => {
     if (!focus) return;
 
@@ -54,6 +66,12 @@ export function TutorialSpotlight() {
     let timer = 0;
     let waited = 0;
 
+    const measure = () => {
+      if (!found) return;
+      const r = found.getBoundingClientRect();
+      setHole({ top: r.top, left: r.left, width: r.width, height: r.height });
+    };
+
     const hunt = () => {
       const el = document.querySelector<HTMLElement>(`[data-tour="${focus}"]`);
       if (el) {
@@ -68,6 +86,9 @@ export function TutorialSpotlight() {
           scrolled = true;
           el.scrollIntoView({ behavior: "smooth", block: "center" });
         }
+        // Re-measured on every pass for the whole window, which covers the
+        // smooth scroll above settling and any late layout shift.
+        measure();
       }
       waited += HUNT_INTERVAL_MS;
       if (waited < HUNT_MS) timer = window.setTimeout(hunt, HUNT_INTERVAL_MS);
@@ -75,9 +96,17 @@ export function TutorialSpotlight() {
 
     hunt();
 
+    // Capture phase: the target often sits inside its own scroller (the ARI
+    // grid, the planner track), and those do not bubble a scroll event.
+    window.addEventListener("scroll", measure, true);
+    window.addEventListener("resize", measure);
+
     return () => {
       window.clearTimeout(timer);
+      window.removeEventListener("scroll", measure, true);
+      window.removeEventListener("resize", measure);
       if (found) delete found.dataset.spotlight;
+      setHole(null);
     };
   }, [focus]);
 
@@ -114,7 +143,9 @@ export function TutorialSpotlight() {
     };
 
     return (
-      <Dock>
+      <>
+        <Dimmer hole={hole} />
+        <Dock>
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
@@ -174,7 +205,8 @@ export function TutorialSpotlight() {
             </Button>
           </div>
         </div>
-      </Dock>
+        </Dock>
+      </>
     );
   }
 
@@ -207,6 +239,34 @@ export function TutorialSpotlight() {
         </Button>
       </div>
     </Dock>
+  );
+}
+
+/**
+ * Dims everything except the panel this step is about.
+ *
+ * Four rectangles around the target rather than one overlay with a clip-path:
+ * no fill-rule support to depend on, and no stacking-context change forced on
+ * the target, which would break the sticky headers inside the ARI grid and the
+ * planner. They are also inert — the point is to direct attention, not to trap
+ * the reader inside the highlighted panel.
+ */
+function Dimmer({ hole }: { hole: Hole | null }) {
+  if (!hole) return null;
+
+  const top = Math.max(0, hole.top - HOLE_PAD);
+  const bottom = hole.top + hole.height + HOLE_PAD;
+  const left = Math.max(0, hole.left - HOLE_PAD);
+  const right = hole.left + hole.width + HOLE_PAD;
+  const shade = "pointer-events-none fixed bg-slate-950/55 transition-all duration-200";
+
+  return (
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-45">
+      <div className={shade} style={{ top: 0, left: 0, right: 0, height: top }} />
+      <div className={shade} style={{ top: bottom, left: 0, right: 0, bottom: 0 }} />
+      <div className={shade} style={{ top, left: 0, width: left, height: bottom - top }} />
+      <div className={shade} style={{ top, left: right, right: 0, height: bottom - top }} />
+    </div>
   );
 }
 

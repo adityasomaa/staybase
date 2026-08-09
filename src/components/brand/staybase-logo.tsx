@@ -3,28 +3,27 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
- * The supplied artwork, cropped — not redrawn.
+ * The supplied artwork — not redrawn.
  *
- * Two things about the source file drive everything here. Its background is
- * transparent, so the crops composite onto any surface. And "Stay" is painted
- * in near-black navy, rgb(0 10 36): 18.6:1 against the light canvas but 1.13:1
- * against the dark one, where it simply disappears. The same is true of the
- * mark's shadow facets.
+ * The mark is the squared white-background file, used as delivered. The lockup
+ * is a crop of the original render, and it needs a plate of its own: "Stay" is
+ * painted near-black navy, rgb(0 10 36), which is 18.6:1 against the light
+ * canvas but 1.13:1 against the dark one, where it simply disappears.
  *
- * So the artwork always sits on a white plate. That keeps it exactly as drawn
- * instead of filtering or recolouring it to survive dark mode, and on the light
- * canvas the plate is near-invisible anyway.
+ * Both therefore end up on white. That leaves the artwork exactly as drawn
+ * rather than filtering or recolouring it to survive dark mode, and on the
+ * light canvas the plate is near-invisible anyway.
  */
 
-/** Just the mark, for tight spots — a sidebar rail, a dialog header. */
+/**
+ * Just the mark, for tight spots — a sidebar rail, a dialog header.
+ *
+ * This is the squared white-background file, so it brings its own plate; all
+ * this has to do is round the corners off it.
+ */
 export function StaybaseMark({ className }: { className?: string }) {
   return (
-    <span
-      className={cn(
-        "flex size-8 shrink-0 items-center justify-center rounded-md bg-white p-0.5",
-        className,
-      )}
-    >
+    <span className={cn("block size-8 shrink-0 overflow-hidden rounded-md", className)}>
       {/* Unoptimized: the file is already shipped at the only size it renders
           at, so the optimizer would fetch a 1080px variant of a 32px logo. */}
       <Image
@@ -33,7 +32,7 @@ export function StaybaseMark({ className }: { className?: string }) {
         width={128}
         height={128}
         unoptimized
-        className="size-full object-contain"
+        className="size-full object-cover"
       />
     </span>
   );
