@@ -446,9 +446,7 @@ function RoomDialog({
 }) {
   const [roomTypeId, setRoomTypeId] = React.useState(roomTypes[0]?.id ?? "");
   const [numbers, setNumbers] = React.useState("");
-  const [floor, setFloor] = React.useState(1);
-
-  // Accepting a list means adding a floor of rooms is one action, not twelve.
+  // Accepting a list means adding a corridor of rooms is one action, not twelve.
   const parsed = numbers
     .split(/[,\s]+/)
     .map((value) => value.trim())
@@ -502,17 +500,6 @@ function RoomDialog({
             </p>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="room-floor">Floor</Label>
-            <Input
-              id="room-floor"
-              type="number"
-              min={0}
-              className="tabular"
-              value={floor}
-              onChange={(e) => setFloor(Number(e.target.value))}
-            />
-          </div>
         </div>
 
         <DialogFooter>
@@ -524,7 +511,7 @@ function RoomDialog({
             onClick={() => {
               onClose();
               toast.success(
-                `${parsed.length} room${parsed.length === 1 ? "" : "s"} added to floor ${floor}`,
+                `${parsed.length} room${parsed.length === 1 ? "" : "s"} added`,
                 {
                   description: `${roomTypes.find((rt) => rt.id === roomTypeId)?.title} · ${parsed.join(", ")}`,
                 },

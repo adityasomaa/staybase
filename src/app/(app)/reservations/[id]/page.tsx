@@ -91,7 +91,7 @@ export default async function ReservationDetailPage(props: Props) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
+        <div className="flex flex-col gap-4 lg:col-span-2">
           <Card className="gap-4">
             <CardHeader>
               <CardTitle>Stay details</CardTitle>
@@ -150,7 +150,7 @@ export default async function ReservationDetailPage(props: Props) {
             ) : null}
           </Card>
 
-          <Card className="gap-4">
+          <Card className="gap-4 lg:flex-1">
             <CardHeader>
               <CardTitle>Nightly breakdown</CardTitle>
               <CardDescription>
@@ -186,7 +186,7 @@ export default async function ReservationDetailPage(props: Props) {
           </Card>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Card className="gap-4">
             <CardHeader>
               <CardTitle>Guest</CardTitle>
@@ -236,7 +236,9 @@ export default async function ReservationDetailPage(props: Props) {
             </CardContent>
           </Card>
 
-          <Card className="gap-4">
+          {/* Last card in the column grows, so the two columns end level on
+              desktop. Inert once the grid collapses to one column. */}
+          <Card className="gap-4 lg:flex-1">
             <CardHeader>
               <CardTitle>Folio</CardTitle>
               <CardDescription>

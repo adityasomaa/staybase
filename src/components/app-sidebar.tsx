@@ -85,7 +85,7 @@ export function AppSidebar({
                       Stay<span className="text-primary">Base</span>
                     </span>
                     <span className="text-muted-foreground truncate text-xs">
-                      {active.code} · {active.rooms} rooms
+                      {active.title}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 opacity-60" />

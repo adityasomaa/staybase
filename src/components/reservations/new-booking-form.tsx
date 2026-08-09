@@ -9,6 +9,7 @@ import { addDays, diffDays, formatDate } from "@/lib/date";
 import { channelLabels, formatMoney, mealPlanLabels } from "@/lib/format";
 import { queueChannelSync } from "@/lib/sync/auto-sync";
 import type { ChannelCode } from "@/lib/types";
+import { DatePicker } from "@/components/date-picker";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -169,28 +170,22 @@ export function NewBookingForm({
             </Field>
 
             <Field label="Check-in" htmlFor="checkIn">
-              <Input
+              <DatePicker
                 id="checkIn"
-                type="date"
                 value={checkIn}
-                className="tabular"
-                onChange={(event) => {
-                  setCheckIn(event.target.value);
-                  if (event.target.value >= checkOut) {
-                    setCheckOut(addDays(event.target.value, 1));
-                  }
+                onChange={(next) => {
+                  setCheckIn(next);
+                  if (next >= checkOut) setCheckOut(addDays(next, 1));
                 }}
               />
             </Field>
 
             <Field label="Check-out" htmlFor="checkOut">
-              <Input
+              <DatePicker
                 id="checkOut"
-                type="date"
                 value={checkOut}
                 min={addDays(checkIn, 1)}
-                className="tabular"
-                onChange={(event) => setCheckOut(event.target.value)}
+                onChange={setCheckOut}
               />
             </Field>
 

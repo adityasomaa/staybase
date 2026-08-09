@@ -23,7 +23,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 export interface HousekeepingRoom {
   id: string;
   number: string;
-  floor: number;
   roomTypeTitle: string;
   housekeeping: HousekeepingStatus;
   occupied: boolean;

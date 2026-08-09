@@ -205,7 +205,7 @@ export default function BillingPage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Card className="gap-4" data-tour="billing-payment-method">
             <CardHeader>
               <CardTitle className="text-base">Payment method</CardTitle>
@@ -237,7 +237,10 @@ export default function BillingPage() {
             </CardContent>
           </Card>
 
-          <Card className="gap-4">
+          {/* Grows to the height of the invoice table beside it, so the column
+              ends level with it instead of leaving a gap on the desktop grid.
+              At one column the parent has no height to fill and this is inert. */}
+          <Card className="gap-4 lg:flex-1">
             <CardHeader>
               <CardTitle className="text-base">What suspension does</CardTitle>
               <CardDescription>After the grace period expires.</CardDescription>

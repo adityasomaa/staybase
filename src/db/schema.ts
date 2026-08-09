@@ -152,7 +152,6 @@ export const rooms = pgTable(
       .notNull()
       .references(() => roomTypes.id, { onDelete: "cascade" }),
     number: text("number").notNull(),
-    floor: integer("floor").notNull().default(1),
     housekeeping: housekeepingStatus("housekeeping").notNull().default("clean"),
     assignedTo: text("assigned_to"),
     note: text("note"),

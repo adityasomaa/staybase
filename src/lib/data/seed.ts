@@ -341,7 +341,6 @@ export const rooms: Room[] = (() => {
         propertyId: "prop_ubud",
         roomTypeId: rt.id,
         number: `${floor}${String(index).padStart(2, "0")}`,
-        floor,
         housekeeping: "clean",
         occupied: false,
         assignedTo: rand() > 0.25 ? pick(housekeepers) : null,

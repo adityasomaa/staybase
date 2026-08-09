@@ -18,7 +18,6 @@ export default function HousekeepingPage() {
   const rooms: HousekeepingRoom[] = board.map((room) => ({
     id: room.id,
     number: room.number,
-    floor: room.floor,
     roomTypeTitle: room.roomTypeTitle,
     housekeeping: room.housekeeping,
     occupied: room.occupied,

@@ -453,7 +453,6 @@ export interface PlannerBlock {
 export interface PlannerRow {
   roomId: string;
   roomNumber: string;
-  floor: number;
   roomTypeId: string;
   roomTypeTitle: string;
   housekeeping: string;
@@ -544,7 +543,6 @@ export function getPlannerGrid(from: ISODate, days: number): {
     .map((room) => ({
       roomId: room.id,
       roomNumber: room.number,
-      floor: room.floor,
       roomTypeId: room.roomTypeId,
       roomTypeTitle: getRoomType(room.roomTypeId)?.title ?? "—",
       housekeeping: room.housekeeping,
@@ -961,7 +959,7 @@ export function searchEverything(rawQuery: string, limit = 24): SearchResult[] {
         id: `room:${room.id}`,
         kind: "room",
         title: `Room ${room.number}`,
-        subtitle: `${getRoomType(room.roomTypeId)?.title ?? "—"} · floor ${room.floor}`,
+        subtitle: `${getRoomType(room.roomTypeId)?.title ?? "—"}`,
         href: "/planner",
         score,
       });

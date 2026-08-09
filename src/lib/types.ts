@@ -144,7 +144,6 @@ export interface Room {
   propertyId: string;
   roomTypeId: string;
   number: string;
-  floor: number;
   housekeeping: HousekeepingStatus;
   occupied: boolean;
   assignedTo: string | null;

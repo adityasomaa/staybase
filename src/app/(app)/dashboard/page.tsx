@@ -121,14 +121,14 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 *:h-full">
           <PerformanceChart data={performance} today={TODAY} />
         </div>
         <ChannelMixChart data={channelMix} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 *:h-full">
           <ForecastChart data={forecast} />
         </div>
 

@@ -262,7 +262,6 @@ export default async function InventoryPage(props: {
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="pl-6">Room</TableHead>
-                      <TableHead>Floor</TableHead>
                       <TableHead>Room type</TableHead>
                       <TableHead className="hidden sm:table-cell">Housekeeping</TableHead>
                       <TableHead className="pr-6">Attendant</TableHead>
@@ -274,7 +273,6 @@ export default async function InventoryPage(props: {
                         <TableCell className="tabular pl-6 text-sm font-medium">
                           {room.number}
                         </TableCell>
-                        <TableCell className="tabular text-sm">{room.floor}</TableCell>
                         <TableCell className="text-sm">
                           {roomTypes.find((rt) => rt.id === room.roomTypeId)?.title ?? "—"}
                         </TableCell>

@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  CalendarDays,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleAlert,
@@ -13,6 +15,7 @@ import {
   TriangleAlert,
   Wrench,
 } from "lucide-react";
+import type { Matcher } from "react-day-picker";
 import { toast } from "sonner";
 
 import { addDays, dayLabel, dayNumber, diffDays, formatDate, isWeekend, monthLabel } from "@/lib/date";
@@ -20,11 +23,14 @@ import { channelLabels, formatMoney, initials, statusLabels } from "@/lib/format
 import { queueChannelSync } from "@/lib/sync/auto-sync";
 import type { BlockReason, ChannelCode } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { DatePicker, fromLocalDate, toLocalDate } from "@/components/date-picker";
 import { ChannelPill, StatusPill } from "@/components/tokens";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +39,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -90,7 +95,6 @@ export interface PlannerBlockView {
 export interface PlannerRowView {
   roomId: string;
   roomNumber: string;
-  floor: number;
   roomTypeId: string;
   roomTypeTitle: string;
   housekeeping: string;
@@ -104,17 +108,27 @@ const ROOM_COL = 168;
 /**
  * Where a bar sits on a room's track.
  *
- * A bar runs from the middle of its first column to the middle of its last,
+ * A stay runs from the middle of its first column to the middle of its last,
  * because both of those columns belong to two stays at once: a room vacated on
  * the 5th can be sold again on the 5th. Giving the arrival and departure days
  * half a column each leaves the other half free, so a same-day changeover
  * reads as two bars meeting rather than one bar covering another.
  *
+ * A block is the exception, and takes whole columns. Nobody checks into a
+ * room that is being renovated at midday — the whole day is gone, and showing
+ * it as half a column invites someone to sell the other half.
+ *
  * Returns null when the bar falls entirely outside the visible window.
  */
-function barGeometry(barOffset: number, span: number, windowOffset: number, columns: number) {
+function barGeometry(
+  barOffset: number,
+  span: number,
+  windowOffset: number,
+  columns: number,
+  { wholeColumns = false }: { wholeColumns?: boolean } = {},
+) {
   const track = columns * CELL;
-  const start = (barOffset - windowOffset) * CELL + CELL / 2;
+  const start = (barOffset - windowOffset) * CELL + (wholeColumns ? 0 : CELL / 2);
   const end = start + span * CELL;
   if (end <= 0 || start >= track) return null;
   const left = Math.max(0, start);
@@ -166,7 +180,6 @@ export function BookingPlanner({
   openBlockOnMount?: boolean;
 }) {
   const [offset, setOffset] = React.useState(0);
-  const [floor, setFloor] = React.useState<string>("all");
   const [roomType, setRoomType] = React.useState<string>("all");
   const [stay, setStay] = React.useState<PlannerStayView | null>(null);
   const [localBlocks, setLocalBlocks] = React.useState<
@@ -191,23 +204,34 @@ export function BookingPlanner({
       : null,
   );
 
+  const [jumpOpen, setJumpOpen] = React.useState(false);
+
   const windowDates = dates.slice(offset, offset + visibleDays);
   const windowStart = windowDates[0] ?? from;
+  /** The furthest start that still fills the window. */
+  const lastStart = dates[Math.max(0, dates.length - visibleDays)] ?? from;
+
+  /** Only dates the server actually sent can start the window. */
+  const jumpBounds: Matcher[] = [];
+  const firstDate = toLocalDate(dates[0] ?? from);
+  const lastDate = toLocalDate(lastStart);
+  if (firstDate) jumpBounds.push({ before: firstDate });
+  if (lastDate) jumpBounds.push({ after: lastDate });
+
+  /** Put the chosen date in the first column, as far as the range allows. */
+  const jumpTo = (iso: string) => {
+    const index = dates.indexOf(iso);
+    if (index < 0) return;
+    setOffset(Math.min(index, Math.max(0, dates.length - visibleDays)));
+  };
 
   const roomTypes = React.useMemo(
     () => [...new Map(rows.map((r) => [r.roomTypeId, r.roomTypeTitle])).entries()],
     [rows],
   );
-  const floors = React.useMemo(
-    () => [...new Set(rows.map((r) => r.floor))].sort((a, b) => a - b),
-    [rows],
+  const visibleRows = rows.filter(
+    (row) => roomType === "all" || row.roomTypeId === roomType,
   );
-
-  const visibleRows = rows.filter((row) => {
-    if (floor !== "all" && String(row.floor) !== floor) return false;
-    if (roomType !== "all" && row.roomTypeId !== roomType) return false;
-    return true;
-  });
 
   const blocksFor = (row: PlannerRowView) =>
     [...row.blocks, ...localBlocks.filter((b) => b.roomId === row.roomId)].filter(
@@ -265,9 +289,35 @@ export function BookingPlanner({
           >
             <ChevronLeft className="size-4" />
           </Button>
-          <span className="tabular w-36 border-x px-2 text-center text-sm font-medium">
-            {monthLabel(windowStart)}
-          </span>
+          {/* The window start is a date, so it is picked on a calendar rather
+              than paged to a week at a time. Whatever is chosen becomes the
+              first column. */}
+          <Popover open={jumpOpen} onOpenChange={setJumpOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className="tabular h-8 w-44 gap-1.5 rounded-none border-x px-2 text-sm font-medium"
+              >
+                <CalendarDays className="size-3.5 shrink-0 opacity-70" />
+                <span className="truncate">{monthLabel(windowStart)}</span>
+                <ChevronDown className="ml-auto size-3.5 shrink-0 opacity-60" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" sideOffset={6} className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={toLocalDate(windowStart)}
+                defaultMonth={toLocalDate(windowStart)}
+                autoFocus
+                disabled={jumpBounds}
+                onSelect={(date) => {
+                  if (!date) return;
+                  jumpTo(fromLocalDate(date));
+                  setJumpOpen(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
           <Button
             variant="ghost"
             size="icon"
@@ -282,20 +332,6 @@ export function BookingPlanner({
         <Button variant="outline" size="sm" onClick={() => setOffset(0)}>
           Today
         </Button>
-
-        <Select value={floor} onValueChange={setFloor}>
-          <SelectTrigger size="sm" className="w-28">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All floors</SelectItem>
-            {floors.map((f) => (
-              <SelectItem key={f} value={String(f)}>
-                Floor {f}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
 
         <Select value={roomType} onValueChange={setRoomType}>
           <SelectTrigger size="sm" className="w-48">
@@ -387,12 +423,17 @@ export function BookingPlanner({
                 >
                   <p className="text-xs font-medium">Room</p>
                 </div>
-                {windowDates.map((date) => (
+                {windowDates.map((date, index) => (
                   <div
                     key={date}
                     style={{ width: CELL }}
                     className={cn(
-                      "shrink-0 border-r py-1.5 text-center last:border-r-0",
+                      "shrink-0 py-1.5 text-center",
+                      // Explicit rather than `last:`: in the rows below, the
+                      // stay and block bars are siblings that come after the
+                      // day cells, so the last cell is not the last child and
+                      // the rule fires on some rows but not others.
+                      index < windowDates.length - 1 && "border-r",
                       isWeekend(date) && "bg-accent/60",
                       date === today && "bg-primary/15",
                     )}
@@ -436,7 +477,7 @@ export function BookingPlanner({
                       style={{ width: windowDates.length * CELL, height: 44 }}
                     >
                       {/* Clickable empty track */}
-                      {windowDates.map((date) => (
+                      {windowDates.map((date, index) => (
                         <button
                           key={date}
                           type="button"
@@ -450,7 +491,8 @@ export function BookingPlanner({
                             })
                           }
                           className={cn(
-                            "hover:bg-primary/10 focus-visible:ring-ring shrink-0 border-r transition-colors last:border-r-0 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+                            "hover:bg-primary/10 focus-visible:ring-ring shrink-0 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+                            index < windowDates.length - 1 && "border-r",
                             isWeekend(date) && "bg-accent/25",
                             date === today && "bg-primary/8",
                           )}
@@ -459,13 +501,12 @@ export function BookingPlanner({
                       ))}
 
                       {blocks.map((block) => {
-                        // Blocks use the same inclusive-start, exclusive-end
-                        // convention as a stay, so they are drawn the same way.
                         const geo = barGeometry(
                           block.offset,
                           block.span,
                           offset,
                           windowDates.length,
+                          { wholeColumns: true },
                         );
                         if (!geo) return null;
                         return (
@@ -716,30 +757,25 @@ function BlockDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="block-from">From</Label>
-                <Input
+                <DatePicker
                   id="block-from"
-                  type="date"
-                  className="tabular"
                   value={draft.from}
-                  onChange={(e) => {
-                    const next = e.target.value;
+                  onChange={(next) =>
                     onChange({
                       ...draft,
                       from: next,
                       to: next >= draft.to ? addDays(next, 1) : draft.to,
-                    });
-                  }}
+                    })
+                  }
                 />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="block-to">To</Label>
-                <Input
+                <DatePicker
                   id="block-to"
-                  type="date"
-                  className="tabular"
-                  min={addDays(draft.from, 1)}
                   value={draft.to}
-                  onChange={(e) => onChange({ ...draft, to: e.target.value })}
+                  min={addDays(draft.from, 1)}
+                  onChange={(next) => onChange({ ...draft, to: next })}
                 />
               </div>
             </div>
