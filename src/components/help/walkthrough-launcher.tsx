@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CircleHelp, Compass } from "lucide-react";
+import { ArrowRight, CircleHelp } from "lucide-react";
 
 import { completeTour, recordWalkthroughProgress } from "@/app/actions";
+import { StaybaseMark } from "@/components/brand/staybase-logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -51,9 +52,7 @@ export function WalkthroughLauncher({ resumeFrom = 0 }: { resumeFrom?: number })
     <Dialog open={open} onOpenChange={(next) => (next ? setOpen(true) : void decline())}>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
-          <div className="bg-primary/10 text-primary mb-1 flex size-10 items-center justify-center rounded-lg">
-            <Compass className="size-5" />
-          </div>
+          <StaybaseMark className="mb-1 size-10" />
           <DialogTitle className="text-xl text-balance">
             {resuming ? "Pick up where you left off" : `Set STAYBASE up in ${walkthroughLength} steps`}
           </DialogTitle>

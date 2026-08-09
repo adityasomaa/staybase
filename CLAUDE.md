@@ -53,6 +53,7 @@ src/
     api/health/      readiness probe
     actions.ts       billing lock + onboarding tour server actions
   components/        ui/ (shadcn primitives) + one folder per feature
+    brand/           the mark and lockup, rebuilt as vector from the logo
   db/                Drizzle schema + lazily-created client
   lib/
     channex/         API client, payload types, PMS <-> Channex mapping
@@ -86,6 +87,15 @@ reads the demo dataset, and swapping it to Drizzle is a drop-in change because
 - **Dry-run by default.** Without `CHANNEX_API_KEY`, `/api/channex/sync`
   returns `mode: "dry-run"` with the exact batch counts it *would* have sent,
   instead of failing.
+- **One blue, from the logo.** The accent is the mark's own blue,
+  `rgb(22 104 255)` = `oklch(0.5695 0.2367 261.6)`; `--primary` sits a little
+  under it so white text clears 4.5:1, and the mark reads that token rather
+  than hard-coding a hex. Status colour (emerald/amber/red/sky) stays put — it
+  has to read as data, not brand. `chart-4` moved to 305 to stay clear of the
+  now-blue `chart-1`. The mark is vector in `components/brand`, never the
+  source PNG: that render is a glow on black and dies on a light canvas and at
+  favicon size. `app/icon.svg` carries its own blue background because a tab
+  icon has no theme to inherit.
 - **Every change pushes itself.** The operator asked for this explicitly: a
   manual push fails silently, because the person who forgets it never finds
   out. `lib/sync/auto-sync.ts` queues a push after any change an OTA needs to

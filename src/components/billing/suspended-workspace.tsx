@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { restoreWorkspace } from "@/app/actions";
 import { formatMoney } from "@/lib/format";
+import { StaybaseLogo } from "@/components/brand/staybase-logo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -48,7 +49,10 @@ export function SuspendedWorkspace({
   };
 
   return (
-    <main className="flex min-h-svh flex-1 items-center justify-center p-4">
+    <main className="flex min-h-svh flex-1 flex-col items-center justify-center gap-6 p-4">
+      {/* The lock screen replaces the whole shell, so this is the only place
+          the operator can see whose product is holding their workspace. */}
+      <StaybaseLogo showTagline />
       <Card className="w-full max-w-lg">
         <CardHeader>
           <div className="bg-destructive/10 text-destructive mb-2 flex size-10 items-center justify-center rounded-lg">

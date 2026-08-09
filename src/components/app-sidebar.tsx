@@ -3,10 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, ChevronsUpDown, Hotel, LifeBuoy, Zap } from "lucide-react";
+import { Check, ChevronsUpDown, LifeBuoy, Zap } from "lucide-react";
 
 import { navigation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import { StaybaseMark } from "@/components/brand/staybase-logo";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -78,11 +79,14 @@ export function AppSidebar({
                   className="data-[state=open]:bg-sidebar-accent"
                   aria-label="Switch property"
                 >
-                  <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <Hotel className="size-4" />
-                  </div>
+                  {/* SidebarMenuButton sizes every descendant svg with
+                      [&_svg]:size-4, which outranks a plain size-8 — wrapping
+                      does not help, so the mark has to override it outright. */}
+                  <StaybaseMark className="size-8! shrink-0" />
                   <div className="grid flex-1 text-left leading-tight">
-                    <span className="truncate text-sm font-semibold">STAYBASE</span>
+                    <span className="truncate text-sm font-extrabold tracking-tight">
+                      Stay<span className="text-primary">Base</span>
+                    </span>
                     <span className="text-muted-foreground truncate text-xs">
                       {active.code} · {active.rooms} rooms
                     </span>
