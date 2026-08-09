@@ -87,16 +87,21 @@ reads the demo dataset, and swapping it to Drizzle is a drop-in change because
 - **Dry-run by default.** Without `CHANNEX_API_KEY`, `/api/channex/sync`
   returns `mode: "dry-run"` with the exact batch counts it *would* have sent,
   instead of failing.
-- **The logo is the supplied artwork, cropped — not redrawn.** An earlier pass
-  rebuilt it as vector and the operator rejected that: use the file as it is.
-  `public/brand/` holds two crops of the source render, shipped at the
-  size they actually display at. Its background is transparent, but "Stay" is
-  painted near-black navy — 18.6:1 on the light canvas, **1.13:1 on the dark
-  one**, where it disappears, and the mark's shadow facets do the same. So the
-  artwork always sits on a white plate rather than being filtered or
-  recoloured, and `app/icon.png` carries its own white plate because a tab icon
-  has no theme to inherit. Both use `unoptimized`; without it Next fetches a
-  1080px variant of a 32px logo.
+- **The logo is the supplied artwork — never redrawn.** An earlier pass rebuilt
+  it as vector and the operator rejected that. `public/brand/staybase-mark.png`
+  is their squared white-background file; the tile only rounds its corners.
+  `public/brand/staybase-lockup.png` is a crop of the original render and does
+  need a plate, because "Stay" is painted near-black navy: 18.6:1 on the light
+  canvas but **1.13:1 on the dark one**, where it disappears. Filtering or
+  recolouring it to survive dark mode is not on the table — put it on white.
+  Both images are `unoptimized`; without it Next fetches a 1080px variant of a
+  32px logo and stalls the dev server.
+- **The favicon is a real trace, not a raster in a wrapper.**
+  `app/icon.svg` came from the squared transparent file through imagetracerjs
+  (20 colours off a 256px sample) and is *smaller* than the source PNG, 60 KB
+  against 116 KB. `apple-icon.png` stays a PNG because Apple touch icons cannot
+  be SVG and iOS paints transparency black, so it uses the white-background
+  file rather than a plate we invented.
 - **One blue, sampled from that artwork.** `rgb(0 80 240)` =
   `oklch(0.51 0.247 262.5)`, the most common opaque blue across mark and
   wordmark. It clears 6.1:1 on white, so `--primary` uses it at full strength.
@@ -133,7 +138,11 @@ reads the demo dataset, and swapping it to Drizzle is a drop-in change because
   not add component state for it — and the element hunt must keep re-applying
   its mark, because a client component that hydrates late rewrites its own
   attributes and drops it. Adding a `TourTargetId` without an entry in the
-  registry is a type error, so a step can never point nowhere.
+  registry is a type error, so a step can never point nowhere. Guided setup
+  also dims the rest of the screen: four inert rectangles around the target,
+  not a clip-path, so nothing depends on fill-rule and the target keeps its
+  stacking context — the ARI grid and the planner have sticky headers that
+  break if it changes.
 - **Search runs server-side** at `/api/search`, so it reaches the whole ledger
   rather than what the current page loaded. Scoring drops stopwords and
   rewards vocabulary coverage — that is what lets "how do i block a room" find
