@@ -12,6 +12,7 @@ import { cookies } from "next/headers";
  */
 export const BILLING_COOKIE = "staybase_billing";
 export const TOUR_COOKIE = "staybase_tour";
+export const WALKTHROUGH_COOKIE = "staybase_walk";
 
 export type BillingState = "active" | "suspended";
 
@@ -23,4 +24,15 @@ export async function getBillingState(): Promise<BillingState> {
 export async function hasSeenTour(): Promise<boolean> {
   const store = await cookies();
   return store.get(TOUR_COOKIE)?.value === "done";
+}
+
+/**
+ * How far through guided setup this workspace has got, as a count of finished
+ * steps. Used to resume where the operator stopped and to show setup progress
+ * on the help page.
+ */
+export async function getWalkthroughProgress(): Promise<number> {
+  const store = await cookies();
+  const value = Number(store.get(WALKTHROUGH_COOKIE)?.value);
+  return Number.isInteger(value) && value > 0 ? value : 0;
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Clock, Plug, Search } from "lucide-react";
+import { ArrowRight, BookOpen, Check, Clock, Compass, Plug, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { ReplayTourButton } from "@/components/help/replay-tour-button";
@@ -14,7 +14,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { helpArticles, helpCategoryLabels } from "@/lib/help/articles";
+import { walkStepHref, walkthrough, walkthroughLength } from "@/lib/help/walkthrough";
 import { otaCatalog } from "@/lib/ota/catalog";
+import { getWalkthroughProgress } from "@/lib/workspace";
 import type { HelpCategory } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Help & Tutorials" };
@@ -29,14 +31,66 @@ const order: HelpCategory[] = [
   "billing",
 ];
 
-export default function HelpPage() {
+export default async function HelpPage() {
+  const completed = Math.min(await getWalkthroughProgress(), walkthroughLength);
+  const done = completed >= walkthroughLength;
+
   return (
     <>
       <PageHeader
         title="Help & Tutorials"
-        description="Short guides for the parts of a PMS that are easy to get subtly wrong. Everything here is indexed by search, so ⌘K finds the answer rather than only the page."
-        actions={<ReplayTourButton />}
+        description="Short guides for the parts of a PMS that are easy to get subtly wrong. Everything here is indexed by search, so a typed question finds the answer rather than only the page."
+        actions={<ReplayTourButton completed={completed} />}
       />
+
+      <Card className="gap-3 py-4">
+        <CardHeader className="px-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Compass className="size-4" />
+            Guided setup
+          </CardTitle>
+          <CardDescription className="text-pretty">
+            {done
+              ? "You have been through every step. Replaying walks the same ten controls again."
+              : "Each step opens the screen it is about and points at the control, in the order the pieces depend on each other."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 px-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full">
+              <div
+                className="bg-primary h-full rounded-full"
+                style={{ width: `${(completed / walkthroughLength) * 100}%` }}
+              />
+            </div>
+            <span className="text-muted-foreground tabular shrink-0 text-xs">
+              {completed} of {walkthroughLength}
+            </span>
+          </div>
+          <ol className="grid gap-1.5 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            {walkthrough.map((step, index) => {
+              const stepDone = index < completed;
+              return (
+                <li key={step.target}>
+                  <Link
+                    href={walkStepHref(index)}
+                    className="hover:bg-muted/60 flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors"
+                  >
+                    <span
+                      className={`tabular flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+                        stepDone ? "bg-primary text-primary-foreground" : "bg-muted"
+                      }`}
+                    >
+                      {stepDone ? <Check className="size-3" /> : index + 1}
+                    </span>
+                    <span className="truncate">{step.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </CardContent>
+      </Card>
 
       <Card className="gap-3 py-4">
         <CardContent className="flex flex-wrap items-center gap-3 px-4">
@@ -44,10 +98,10 @@ export default function HelpPage() {
           <p className="text-muted-foreground min-w-0 flex-1 text-sm text-pretty">
             Press{" "}
             <kbd className="bg-muted rounded border px-1.5 py-0.5 text-[11px] font-medium">
-              ⌘K
+              Ctrl+K
             </kbd>{" "}
-            anywhere and type a question — &ldquo;how do I block a room&rdquo;, &ldquo;connect
-            Agoda&rdquo;, or a reservation reference.
+            anywhere — ⌘K on a Mac — and type a question: &ldquo;how do I block a room&rdquo;,
+            &ldquo;connect Agoda&rdquo;, or a reservation reference.
           </p>
         </CardContent>
       </Card>

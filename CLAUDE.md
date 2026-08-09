@@ -58,6 +58,9 @@ src/
     channex/         API client, payload types, PMS <-> Channex mapping
     ota/catalog.ts   nine OTAs and their per-channel setup guides
     help/articles.ts tutorial library (also feeds global search)
+    help/targets.ts  id -> route + tab + spotlight copy, for every step
+    help/walkthrough.ts guided setup, in dependency order
+    sync/auto-sync.ts debounced outbound push shared by every action
     pricing.ts       dynamic pricing engine — pure, shared server + client
     data/            demo dataset (seed.ts, seed-ops.ts) + queries.ts
     date.ts          UTC-anchored date maths
@@ -104,6 +107,16 @@ reads the demo dataset, and swapping it to Drizzle is a drop-in change because
 - **The pricing engine is a pure function** used by both the server and the
   browser, so toggling a rule re-prices instantly with no second
   implementation to drift.
+- **Tutorials point at the app, not at a screenshot.** Every step names a
+  target id from `lib/help/targets.ts`; the link carries `?focus=<id>` (plus
+  `tab=` where the page has tabs) and `components/help/tutorial-spotlight.tsx`
+  rings the element carrying `data-tour="<id>"`. Guided setup is the same
+  mechanism with `?walk=<n>` on top, so first run and replay are one code path
+  and progress survives a reload. Two consequences: the URL is the state — do
+  not add component state for it — and the element hunt must keep re-applying
+  its mark, because a client component that hydrates late rewrites its own
+  attributes and drops it. Adding a `TourTargetId` without an entry in the
+  registry is a type error, so a step can never point nowhere.
 - **Search runs server-side** at `/api/search`, so it reaches the whole ledger
   rather than what the current page loaded. Scoring drops stopwords and
   rewards vocabulary coverage — that is what lets "how do i block a room" find

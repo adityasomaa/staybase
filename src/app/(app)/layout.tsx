@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { OnboardingTour } from "@/components/onboarding-tour";
 import { SiteHeader } from "@/components/site-header";
 import { TutorialSpotlight } from "@/components/help/tutorial-spotlight";
+import { WalkthroughLauncher } from "@/components/help/walkthrough-launcher";
 import { SuspendedWorkspace } from "@/components/billing/suspended-workspace";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
@@ -14,7 +14,7 @@ import {
   syncEvents,
   TODAY,
 } from "@/lib/data/queries";
-import { getBillingState, hasSeenTour } from "@/lib/workspace";
+import { getBillingState, getWalkthroughProgress, hasSeenTour } from "@/lib/workspace";
 
 /**
  * A PMS is a live operational view — "today" has to be resolved per request,
@@ -25,7 +25,11 @@ export const dynamic = "force-dynamic";
 export default async function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [billingState, seenTour] = await Promise.all([getBillingState(), hasSeenTour()]);
+  const [billingState, seenTour, walkthroughProgress] = await Promise.all([
+    getBillingState(),
+    hasSeenTour(),
+    getWalkthroughProgress(),
+  ]);
   const billing = getBillingOverview();
 
   const badges = {
@@ -70,7 +74,7 @@ export default async function AppLayout({
         />
         <div className="flex flex-1 flex-col gap-5 p-4 lg:p-6">{children}</div>
       </SidebarInset>
-      {seenTour ? null : <OnboardingTour />}
+      {seenTour ? null : <WalkthroughLauncher resumeFrom={walkthroughProgress} />}
       <TutorialSpotlight />
     </SidebarProvider>
   );
