@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { isSignedIn, listProperties } from "@/lib/workspace/properties";
+import { isSignedIn } from "@/lib/workspace/account";
+import { listProperties } from "@/lib/workspace/properties";
 
 export const dynamic = "force-dynamic";
 

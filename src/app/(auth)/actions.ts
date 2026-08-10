@@ -4,36 +4,70 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import type { Currency } from "@/lib/types";
-import { PROPERTIES_COOKIE, SESSION_COOKIE, addProperty } from "@/lib/workspace/properties";
+import {
+  ACCOUNT_COOKIE,
+  createAccount,
+  endSession,
+  getAccount,
+  startSession,
+  verifyPassword,
+} from "@/lib/workspace/account";
+import { PROPERTIES_COOKIE, addProperty, listProperties } from "@/lib/workspace/properties";
 
-const YEAR = 60 * 60 * 24 * 365;
+export interface AuthState {
+  error?: string;
+}
+
+const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 /**
- * Sign-in and sign-up, as a shell.
+ * Sign in.
  *
- * There is no identity provider behind this yet — the operator asked for the
- * screens first — so both actions do the same thing: mark the browser as
- * signed in. Everything downstream reads that flag, which is exactly the seam
- * a real provider will slot into.
+ * Deliberately vague about which half was wrong when an account exists —
+ * naming the field tells someone whether an email is registered. The one
+ * exception is when no account exists at all, because "create one first" is
+ * the only useful thing to say to a first-time visitor.
  */
-async function startSession() {
-  const store = await cookies();
-  store.set(SESSION_COOKIE, "1", { path: "/", maxAge: YEAR, sameSite: "lax" });
-}
+export async function signIn(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
 
-export async function signIn() {
+  if (!email || !password) return { error: "Enter your email and password." };
+
+  const account = await getAccount();
+  if (!account) {
+    return { error: "No account has been created on this browser yet. Sign up first." };
+  }
+  if (account.email !== email || !verifyPassword(account, password)) {
+    return { error: "That email and password do not match an account." };
+  }
+
   await startSession();
-  redirect("/dashboard");
+  redirect((await listProperties()).length === 0 ? "/properties/new" : "/dashboard");
 }
 
-export async function signUp() {
+export async function signUp(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const name = String(formData.get("name") ?? "");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+
+  if (!EMAIL.test(email)) return { error: "Enter a valid email address." };
+  if (password.length < 8) return { error: "Use at least 8 characters for the password." };
+
+  const existing = await getAccount();
+  if (existing) {
+    return existing.email === email
+      ? { error: "That account already exists. Sign in instead." }
+      : { error: `This browser already has an account (${existing.email}). Sign in, or sign out of it first.` };
+  }
+
+  await createAccount({ name, email, password });
   await startSession();
   redirect("/properties/new");
 }
 
 export async function signOut() {
-  const store = await cookies();
-  store.delete(SESSION_COOKIE);
+  await endSession();
   redirect("/login");
 }
 
@@ -52,10 +86,11 @@ export async function createProperty(formData: FormData) {
   redirect("/dashboard");
 }
 
-/** Wipes the workspace back to a fresh install. */
+/** Wipes the browser back to a fresh install — account included. */
 export async function resetWorkspace() {
   const store = await cookies();
   store.delete(PROPERTIES_COOKIE);
-  store.delete(SESSION_COOKIE);
-  redirect("/login");
+  store.delete(ACCOUNT_COOKIE);
+  await endSession();
+  redirect("/signup");
 }

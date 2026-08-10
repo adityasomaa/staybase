@@ -15,7 +15,8 @@ import {
   TODAY,
 } from "@/lib/data/queries";
 import { getBillingState, getWalkthroughProgress, hasSeenTour } from "@/lib/workspace";
-import { isSignedIn, listProperties } from "@/lib/workspace/properties";
+import { isSignedIn } from "@/lib/workspace/account";
+import { listProperties } from "@/lib/workspace/properties";
 
 /**
  * A PMS is a live operational view — "today" has to be resolved per request,

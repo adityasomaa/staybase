@@ -5,7 +5,8 @@ import { Building2 } from "lucide-react";
 
 import { createProperty } from "@/app/(auth)/actions";
 import { PRICE_PER_PROPERTY, BILLING_CURRENCY } from "@/lib/data/queries";
-import { isSignedIn, listProperties } from "@/lib/workspace/properties";
+import { isSignedIn } from "@/lib/workspace/account";
+import { listProperties } from "@/lib/workspace/properties";
 import { Button } from "@/components/ui/button";
 import {
   Card,

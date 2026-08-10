@@ -3,8 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, ChevronsUpDown, LifeBuoy, Plus, Zap } from "lucide-react";
+import { Check, ChevronsUpDown, LifeBuoy, LogOut, Plus, Zap } from "lucide-react";
 
+import { signOut } from "@/app/(auth)/actions";
 import { navigation } from "@/lib/navigation";
 import { BILLING_CURRENCY, PRICE_PER_PROPERTY } from "@/lib/billing/pricing";
 import { cn } from "@/lib/utils";
@@ -198,6 +199,18 @@ export function AppSidebar({
                 <span>Channex docs</span>
               </a>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            {/* A form rather than a link: signing out changes state, and a
+                GET that logs you out is a link anything can follow. */}
+            <form action={signOut}>
+              <SidebarMenuButton asChild tooltip="Sign out">
+                <button type="submit" className="w-full">
+                  <LogOut />
+                  <span>Sign out</span>
+                </button>
+              </SidebarMenuButton>
+            </form>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

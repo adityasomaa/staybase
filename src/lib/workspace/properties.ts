@@ -14,7 +14,6 @@ import type { Currency, Property } from "@/lib/types";
  * table a change in one module.
  */
 export const PROPERTIES_COOKIE = "staybase_properties";
-export const SESSION_COOKIE = "staybase_session";
 
 const YEAR = 60 * 60 * 24 * 365;
 
@@ -90,7 +89,3 @@ export async function addProperty(input: NewProperty): Promise<Property> {
   return property;
 }
 
-export async function isSignedIn(): Promise<boolean> {
-  const store = await cookies();
-  return store.get(SESSION_COOKIE)?.value === "1";
-}
