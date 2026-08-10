@@ -45,7 +45,6 @@ import {
 } from "@/lib/format";
 import {
   TODAY,
-  activeProperty,
   arrivalsOn,
   departuresOn,
   getChannelMix,
@@ -59,9 +58,12 @@ import {
   totalRooms,
 } from "@/lib/data/queries";
 
+import { getActiveProperty } from "@/lib/workspace/properties";
+
 export const metadata: Metadata = { title: "Dashboard" };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const property = await getActiveProperty();
   const stats = getDashboardStats();
   const performance = getPerformanceSeries(60);
   const channelMix = getChannelMix();
@@ -75,7 +77,7 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader
-        title={`Good day at ${activeProperty.title}`}
+        title={`Good day at ${property?.title ?? "your property"}`}
         description={`${formatDate(TODAY)} · ${stats.arrivals} arrivals, ${stats.departures} departures and ${stats.inHouse} rooms in house.`}
         actions={
           <>

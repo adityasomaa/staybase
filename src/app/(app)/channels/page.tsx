@@ -43,12 +43,13 @@ import { channelLabels, formatMoneyCompact, formatPercent } from "@/lib/format";
 import type { ChannelConnectionState, SyncOutcome } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
-  activeProperty,
   channelConnections,
   ratePlans,
   roomTypes,
   syncEvents,
 } from "@/lib/data/queries";
+
+import { getActiveProperty } from "@/lib/workspace/properties";
 
 export const metadata: Metadata = { title: "Channels" };
 
@@ -69,6 +70,7 @@ export default async function ChannelsPage(props: {
   searchParams: Promise<{ add?: string }>;
 }) {
   const searchParams = await props.searchParams;
+  const property = await getActiveProperty();
   const connected = channelConnections.filter((c) => c.state === "connected");
   const errors = channelConnections.filter((c) => c.state === "error");
   const revenue30d = channelConnections.reduce((sum, c) => sum + c.revenue30d, 0);
@@ -236,7 +238,7 @@ export default async function ChannelsPage(props: {
         <CardHeader>
           <CardTitle>Sync journal</CardTitle>
           <CardDescription>
-            Every ARI push and booking pull for {activeProperty.title}, newest first.
+            Every ARI push and booking pull for {property?.title ?? "this property"}, newest first.
           </CardDescription>
         </CardHeader>
         <CardContent className="px-0">

@@ -62,7 +62,7 @@ async function runSync(input: SyncInput) {
   const ratePlanIdMap = Object.fromEntries(
     ratePlans.filter((rp) => rp.channexId).map((rp) => [rp.id, rp.channexId!]),
   );
-  const channexPropertyId = activeProperty.channexId;
+  const channexPropertyId = activeProperty?.channexId ?? null;
 
   const unmappedRoomTypes = roomTypes.filter((rt) => !rt.channexId).map((rt) => rt.code);
   const unmappedRatePlans = ratePlans.filter((rp) => !rp.channexId).map((rp) => rp.code);
@@ -75,7 +75,7 @@ async function runSync(input: SyncInput) {
     : [];
 
   const plan = {
-    property: activeProperty.code,
+    property: activeProperty?.code ?? "—",
     window: { from, to: addDays(from, days - 1), days },
     availabilityValues: availability.length,
     restrictionValues: restrictions.length,

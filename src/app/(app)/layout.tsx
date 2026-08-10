@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { TutorialSpotlight } from "@/components/help/tutorial-spotlight";
@@ -5,16 +7,15 @@ import { WalkthroughLauncher } from "@/components/help/walkthrough-launcher";
 import { SuspendedWorkspace } from "@/components/billing/suspended-workspace";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
-  activeProperty,
   arrivalsOn,
   getBillingOverview,
   getHousekeepingBoard,
   listRoomBlocks,
-  properties,
   syncEvents,
   TODAY,
 } from "@/lib/data/queries";
 import { getBillingState, getWalkthroughProgress, hasSeenTour } from "@/lib/workspace";
+import { isSignedIn, listProperties } from "@/lib/workspace/properties";
 
 /**
  * A PMS is a live operational view — "today" has to be resolved per request,
@@ -30,7 +31,17 @@ export default async function AppLayout({
     hasSeenTour(),
     getWalkthroughProgress(),
   ]);
-  const billing = getBillingOverview();
+  // The shell is only reachable with a session and at least one property —
+  // otherwise there is nothing for any of these screens to be about.
+  if (!(await isSignedIn())) redirect("/login");
+  const properties = await listProperties();
+  const activeProperty = properties[0];
+  if (!activeProperty) redirect("/properties/new");
+
+  const billing = getBillingOverview(
+    properties.length,
+    properties.reduce((sum, property) => sum + property.rooms, 0),
+  );
 
   const badges = {
     arrivals: arrivalsOn().length,

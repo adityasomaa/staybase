@@ -42,7 +42,7 @@ export default async function InventoryPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const tab = tabs.find((value) => value === searchParams.tab) ?? "room-types";
-  const propertyRoomTypes = roomTypes.filter((rt) => rt.propertyId === activeProperty.id);
+  const propertyRoomTypes = roomTypes.filter((rt) => rt.propertyId === activeProperty?.id);
   const performance = getRevenueByRoomType();
   const unmapped =
     propertyRoomTypes.filter((rt) => !rt.channexId).length +

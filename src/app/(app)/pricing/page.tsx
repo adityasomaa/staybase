@@ -41,7 +41,7 @@ export default async function PricingPage(props: {
         initialRules={pricingRules}
         initialGuardrails={pricingGuardrails}
         roomTypes={roomTypes
-          .filter((rt) => rt.propertyId === activeProperty.id)
+          .filter((rt) => rt.propertyId === activeProperty?.id)
           .map((rt) => ({ id: rt.id, title: rt.title }))}
         today={TODAY}
         initialTab={tab}

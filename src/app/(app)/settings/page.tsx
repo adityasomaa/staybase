@@ -95,7 +95,7 @@ export default function SettingsPage() {
                 <ReadOnlyValue label="API base URL" value={baseUrl} />
                 <ReadOnlyValue
                   label="Channex property ID"
-                  value={activeProperty.channexId ?? "not registered"}
+                  value={activeProperty?.channexId ?? "not registered"}
                 />
               </CardContent>
               <CardFooter className="gap-2">

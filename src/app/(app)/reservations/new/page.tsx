@@ -20,7 +20,7 @@ export default function NewReservationPage() {
   const { rows } = getAriGrid(TODAY, 1);
 
   const options: BookingOption[] = roomTypes
-    .filter((rt) => rt.propertyId === activeProperty.id)
+    .filter((rt) => rt.propertyId === activeProperty?.id)
     .map((rt) => {
       const row = rows.find((r) => r.roomTypeId === rt.id);
       return {

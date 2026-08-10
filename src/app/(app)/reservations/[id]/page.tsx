@@ -75,7 +75,7 @@ export default async function ReservationDetailPage(props: Props) {
         </Button>
         <PageHeader
           title={`${reservation.reference} · ${guest?.name ?? "Unknown guest"}`}
-          description={`${formatDate(reservation.checkIn)} → ${formatDate(reservation.checkOut)} · ${reservation.nights} night${reservation.nights === 1 ? "" : "s"} at ${activeProperty.title}`}
+          description={`${formatDate(reservation.checkIn)} → ${formatDate(reservation.checkOut)} · ${reservation.nights} night${reservation.nights === 1 ? "" : "s"} at ${activeProperty?.title ?? "the property"}`}
           actions={
             <>
               <StatusPill status={reservation.status} className="px-2 py-1 text-sm" />

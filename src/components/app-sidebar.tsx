@@ -3,9 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, ChevronsUpDown, LifeBuoy, Zap } from "lucide-react";
+import { Check, ChevronsUpDown, LifeBuoy, Plus, Zap } from "lucide-react";
 
 import { navigation } from "@/lib/navigation";
+import { BILLING_CURRENCY, PRICE_PER_PROPERTY } from "@/lib/billing/pricing";
 import { cn } from "@/lib/utils";
 import { StaybaseMark } from "@/components/brand/staybase-logo";
 import { Badge } from "@/components/ui/badge";
@@ -112,6 +113,15 @@ export function AppSidebar({
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/properties/new" className="gap-2">
+                    <Plus className="size-4" />
+                    <span className="flex-1">Add a property</span>
+                    <span className="text-muted-foreground tabular text-xs">
+                      {BILLING_CURRENCY} {PRICE_PER_PROPERTY}/mo
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/settings">Manage properties</Link>
                 </DropdownMenuItem>

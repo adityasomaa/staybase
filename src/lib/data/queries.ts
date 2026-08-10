@@ -15,6 +15,7 @@ import type {
   PriceSuggestion,
   PricingRule,
   RatePlan,
+  Property,
   Reservation,
   ReservationStatus,
   RoomBlock,
@@ -40,16 +41,19 @@ import {
   TODAY,
 } from "@/lib/data/seed";
 import {
+  PRICE_PER_PROPERTY,
+  BILLING_CURRENCY,
   invoices,
   plans,
   pricingGuardrails,
   pricingRules,
   roomBlocks,
-  subscription,
   users,
 } from "@/lib/data/seed-ops";
 
 export {
+  PRICE_PER_PROPERTY,
+  BILLING_CURRENCY,
   TODAY,
   ARI_FROM,
   ARI_TO,
@@ -64,11 +68,16 @@ export {
   users,
   invoices,
   plans,
-  subscription,
   roomBlocks,
 };
 
-export const activeProperty = properties[0];
+/**
+ * The property in scope, or null in a workspace that has none yet.
+ *
+ * Nullable on purpose: a new install has no property until someone creates
+ * one, and every screen has to be able to say so rather than crash.
+ */
+export const activeProperty: Property | null = properties[0] ?? null;
 
 export function getGuest(id: string) {
   return guests.find((g) => g.id === id);
@@ -142,7 +151,7 @@ function roomNightsOn(date: ISODate) {
 }
 
 export const totalRooms = roomTypes
-  .filter((rt) => rt.propertyId === activeProperty.id)
+  .filter((rt) => rt.propertyId === activeProperty?.id)
   .reduce((s, rt) => s + rt.count, 0);
 
 export interface DashboardStats {
@@ -319,7 +328,7 @@ export function getAriGrid(from: ISODate, days: number): { dates: ISODate[]; row
     }
   }
   const rows: AriRow[] = roomTypes
-    .filter((rt) => rt.propertyId === activeProperty.id)
+    .filter((rt) => rt.propertyId === activeProperty?.id)
     .map((rt) => {
       const plans = ratePlans
         .filter((rp) => rp.roomTypeId === rt.id)
@@ -404,7 +413,7 @@ export function getRevenueByRoomType() {
       r.checkIn <= TODAY,
   );
   return roomTypes
-    .filter((rt) => rt.propertyId === activeProperty.id)
+    .filter((rt) => rt.propertyId === activeProperty?.id)
     .map((rt) => {
       const matching = live.filter((r) => r.rooms.some((rm) => rm.roomTypeId === rt.id));
       const nights = matching.reduce((s, r) => s + r.nights, 0);
@@ -616,8 +625,16 @@ export interface BillingOverview {
   nextInvoiceEstimate: number;
 }
 
-export function getBillingOverview(): BillingOverview {
-  const plan = plans.find((p) => p.id === subscription.planId)!;
+/**
+ * Billing is derived from the property list, not stored.
+ *
+ * The subscription is one line: every property costs the same per month, so
+ * the bill is a multiplication and there is nothing to keep in sync. The count
+ * has to be passed in because it lives in the workspace cookie, which only a
+ * request can read.
+ */
+export function getBillingOverview(propertyCount = 0, billableRooms = 0): BillingOverview {
+  const plan = plans[0];
   const outstanding = invoices.filter(
     (invoice) => invoice.status === "open" || invoice.status === "past_due",
   );
@@ -626,10 +643,16 @@ export function getBillingOverview(): BillingOverview {
     .sort()
     .at(0);
 
-  const roomsAmount = Math.max(
-    plan.minimumMonthly,
-    subscription.billableRooms * plan.pricePerRoom,
-  );
+  const subscription: Subscription = {
+    planId: plan.id,
+    status: outstanding.length > 0 ? "past_due" : "active",
+    billableRooms,
+    properties: propertyCount,
+    currentPeriodStart: TODAY,
+    currentPeriodEnd: addDays(TODAY, 30),
+    graceDays: 7,
+    paymentMethod: null,
+  };
 
   return {
     subscription,
@@ -641,7 +664,7 @@ export function getBillingOverview(): BillingOverview {
     daysUntilSuspension: oldestDue
       ? diffDays(TODAY, addDays(oldestDue, subscription.graceDays))
       : null,
-    nextInvoiceEstimate: Math.round(roomsAmount * 1.11),
+    nextInvoiceEstimate: propertyCount * PRICE_PER_PROPERTY,
   };
 }
 
@@ -668,7 +691,7 @@ function occupancyFor(roomTypeId: string, date: ISODate): number {
 export function getPricingInputs(days = 30) {
   const dates = eachDay(TODAY, days);
   const primaryPlans = roomTypes
-    .filter((rt) => rt.propertyId === activeProperty.id)
+    .filter((rt) => rt.propertyId === activeProperty?.id)
     .map((rt) => ({
       roomType: rt,
       plan: ratePlans.find((rp) => rp.roomTypeId === rt.id && rp.mode === "manual"),
@@ -704,7 +727,7 @@ export function getPricingInputs(days = 30) {
 export function getPricingPreview(days = 30, rules: PricingRule[] = pricingRules) {
   const dates = eachDay(TODAY, days);
   const primaryPlans = roomTypes
-    .filter((rt) => rt.propertyId === activeProperty.id)
+    .filter((rt) => rt.propertyId === activeProperty?.id)
     .map((rt) => ({
       roomType: rt,
       plan: ratePlans.find((rp) => rp.roomTypeId === rt.id && rp.mode === "manual"),

@@ -40,7 +40,8 @@ import { formatDate } from "@/lib/date";
 import { formatMoney, formatMoneyCompact } from "@/lib/format";
 import type { InvoiceStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { getBillingOverview } from "@/lib/data/queries";
+import { BILLING_CURRENCY, PRICE_PER_PROPERTY, getBillingOverview } from "@/lib/data/queries";
+import { listProperties } from "@/lib/workspace/properties";
 
 export const metadata: Metadata = { title: "Billing" };
 
@@ -58,7 +59,8 @@ const invoiceLabels: Record<InvoiceStatus, string> = {
   void: "Void",
 };
 
-export default function BillingPage() {
+export default async function BillingPage() {
+  const properties = await listProperties();
   const {
     subscription,
     plan,
@@ -68,7 +70,10 @@ export default function BillingPage() {
     amountDue,
     daysUntilSuspension,
     nextInvoiceEstimate,
-  } = getBillingOverview();
+  } = getBillingOverview(
+    properties.length,
+    properties.reduce((sum, property) => sum + property.rooms, 0),
+  );
 
   const graceUsed =
     daysUntilSuspension === null
@@ -82,7 +87,7 @@ export default function BillingPage() {
     <>
       <PageHeader
         title="Billing"
-        description="The subscription is billed monthly on sellable rooms across every property. An unpaid invoice warns first, then locks the workspace once the grace period runs out."
+        description={`Every property costs ${BILLING_CURRENCY} ${PRICE_PER_PROPERTY} a month, billed together. An unpaid invoice warns first, then locks the workspace once the grace period runs out.`}
         actions={
           <>
             <SimulateSuspensionButton />
@@ -129,18 +134,18 @@ export default function BillingPage() {
         <StatCard
           label="Current plan"
           value={plan.name}
-          hint={`${formatMoneyCompact(plan.pricePerRoom)} per room / month`}
+          hint={`${BILLING_CURRENCY} ${PRICE_PER_PROPERTY} per property / month`}
           icon={CreditCard}
         />
         <StatCard
-          label="Billable rooms"
-          value={String(subscription.billableRooms)}
-          hint={`${subscription.properties} propert${subscription.properties === 1 ? "y" : "ies"}`}
+          label="Properties"
+          value={String(subscription.properties)}
+          hint={`${subscription.billableRooms} room${subscription.billableRooms === 1 ? "" : "s"} across them`}
           icon={Building2}
         />
         <StatCard
           label="Next invoice"
-          value={formatMoneyCompact(nextInvoiceEstimate)}
+          value={`${BILLING_CURRENCY} ${nextInvoiceEstimate}.00`}
           hint={`issued ${formatDate(subscription.currentPeriodEnd)}`}
           icon={CalendarClock}
         />
