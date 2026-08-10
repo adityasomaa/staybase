@@ -40,7 +40,7 @@ export function StatCard({
               className={cn(
                 "inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 font-medium tabular",
                 positive
-                  ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600"
                   : "border-destructive/20 bg-destructive/10 text-destructive",
               )}
             >

@@ -3,10 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Moon, Plus, Search, Sun, TriangleAlert } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Bell, Plus, Search, TriangleAlert } from "lucide-react";
 
 import { GlobalSearch } from "@/components/global-search";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { allNavItems } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -47,7 +47,7 @@ export function SiteHeader({
       {pastDue ? (
         <Link
           href="/billing"
-          className="bg-amber-500/12 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300 flex items-center justify-center gap-2 px-4 py-1.5 text-xs font-medium transition-colors"
+          className="bg-amber-500/12 text-amber-700 hover:bg-amber-500/20 flex items-center justify-center gap-2 px-4 py-1.5 text-xs font-medium transition-colors"
         >
           <TriangleAlert className="size-3.5 shrink-0" />
           <span className="text-pretty">
@@ -97,7 +97,7 @@ export function SiteHeader({
               </Button>
             </div>
 
-            <ThemeToggle />
+            <LanguageSwitcher />
 
             <Tooltip>
               <TooltipTrigger asChild>
@@ -123,29 +123,5 @@ export function SiteHeader({
 
       <GlobalSearch open={open} onOpenChange={setOpen} />
     </>
-  );
-}
-
-function ThemeToggle() {
-  const { setTheme, resolvedTheme } = useTheme();
-
-  // Both icons render; CSS picks one. That avoids a mounted flag and the
-  // hydration mismatch it papers over.
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          aria-label="Toggle theme"
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-        >
-          <Moon className="size-4 dark:hidden" />
-          <Sun className="hidden size-4 dark:block" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>Toggle theme</TooltipContent>
-    </Tooltip>
   );
 }

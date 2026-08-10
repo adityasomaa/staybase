@@ -11,9 +11,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { dayLabel, dayNumber, isWeekend, monthLabel } from "@/lib/date";
+import { dayLabel, dayNumber, isWeekend } from "@/lib/date";
 import { formatMoney } from "@/lib/format";
 import { queueChannelSync, syncChannelsNow } from "@/lib/sync/auto-sync";
+import { WindowJump } from "@/components/calendar/window-jump";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -85,12 +86,17 @@ export function RateCalendar({
   dates,
   rows,
   channexConfigured,
+  rangeFrom,
+  rangeTo,
 }: {
   initialFrom: string;
   days: number;
   dates: string[];
   rows: CalendarRow[];
   channexConfigured: boolean;
+  /** How far the grid may be moved — five years either side of today. */
+  rangeFrom: string;
+  rangeTo: string;
 }) {
   const [offset, setOffset] = React.useState(0);
   const [edits, setEdits] = React.useState<Record<string, Edit>>({});
@@ -151,9 +157,14 @@ export function RateCalendar({
           >
             <ChevronLeft className="size-4" />
           </Button>
-          <span className="tabular w-40 border-x px-2 text-center text-sm font-medium">
-            {monthLabel(visibleDates[0] ?? initialFrom)}
-          </span>
+          <WindowJump
+            start={visibleDates[0] ?? initialFrom}
+            dates={dates}
+            maxIndex={Math.max(0, dates.length - days)}
+            rangeFrom={rangeFrom}
+            rangeTo={rangeTo}
+            onLocalJump={setOffset}
+          />
           <Button
             variant="ghost"
             size="icon"
@@ -297,8 +308,8 @@ export function RateCalendar({
                                 ratio === 0
                                   ? "text-destructive"
                                   : ratio < 0.2
-                                    ? "text-amber-600 dark:text-amber-400"
-                                    : "text-emerald-600 dark:text-emerald-400",
+                                    ? "text-amber-600"
+                                    : "text-emerald-600",
                               )}
                             >
                               {availability.free}

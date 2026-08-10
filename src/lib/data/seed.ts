@@ -293,38 +293,84 @@ function seasonFactor(date: Date) {
   return weekend * high;
 }
 
-/** 90 day ARI window starting 7 days in the past. */
-export const ariCells: AriCell[] = (() => {
+/** How far either side of today rates and availability exist. */
+export const ARI_YEARS = 5;
+export const ARI_FROM: ISODate = addDays(TODAY, -365 * ARI_YEARS);
+export const ARI_TO: ISODate = addDays(TODAY, 365 * ARI_YEARS);
+
+/** Deterministic per-key seed, so a cell does not depend on generation order. */
+function hashSeed(key: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Rooms sold per (room type, date), reconciled from the reservation ledger. */
+export const soldByTypeDate = new Map<string, number>();
+
+const cellCache = new Map<ISODate, AriCell[]>();
+
+/**
+ * ARI is generated per date rather than materialised.
+ *
+ * The grid has to be open ten years wide — five back, five forward — and move
+ * with the calendar every day. Materialising that is tens of thousands of rows
+ * rebuilt on every cold start, most of which nobody looks at, and it would go
+ * stale the moment the process outlived midnight.
+ *
+ * Generating on demand also forces each cell to be a pure function of its own
+ * key rather than of the order the loop happened to run in, which is why the
+ * randomness is seeded per (date, rate plan) instead of drawn from the shared
+ * sequence.
+ */
+export function ariCellsOn(date: ISODate): AriCell[] {
+  const cached = cellCache.get(date);
+  if (cached) return cached;
+
+  const factor = seasonFactor(new Date(`${date}T00:00:00Z`));
   const cells: AriCell[] = [];
-  const start = addDays(TODAY, -7);
-  for (let d = 0; d < 97; d++) {
-    const date = addDays(start, d);
-    const jsDate = new Date(`${date}T00:00:00Z`);
-    const factor = seasonFactor(jsDate);
-    for (const rt of roomTypesForRates) {
-      const booked = Math.min(rt.count, Math.round(rt.count * between(0.35, 0.95)));
-      for (const rp of plansFor(rt.id)) {
-        const base = rt.defaultRate * factor;
-        const offset = rp.mode === "derived" ? 1 + (rp.derivedOffsetPct ?? 0) / 100 : 1;
-        const jitter = between(0.96, 1.05);
-        cells.push({
-          date,
-          roomTypeId: rt.id,
-          ratePlanId: rp.id,
-          rate: Math.round((base * offset * jitter) / 50_000) * 50_000,
-          allotment: rt.count,
-          booked,
-          minStay: factor > 1.15 ? 2 : 1,
-          maxStay: 30,
-          closed: false,
-          closedToArrival: rand() > 0.96,
-          closedToDeparture: false,
-        });
-      }
+  for (const rt of roomTypesForRates) {
+    for (const rp of plansFor(rt.id)) {
+      const r = mulberry32(hashSeed(`${date}|${rp.id}`));
+      const base = rt.defaultRate * factor;
+      const offset = rp.mode === "derived" ? 1 + (rp.derivedOffsetPct ?? 0) / 100 : 1;
+      const jitter = 0.96 + r() * 0.09;
+      cells.push({
+        date,
+        roomTypeId: rt.id,
+        ratePlanId: rp.id,
+        rate: Math.round((base * offset * jitter) / 50_000) * 50_000,
+        allotment: rt.count,
+        // Availability comes from the ledger, never from a second random
+        // series — that is how the dashboard and the grid used to disagree.
+        booked: Math.min(rt.count, soldByTypeDate.get(`${rt.id}|${date}`) ?? 0),
+        minStay: factor > 1.15 ? 2 : 1,
+        maxStay: 30,
+        closed: false,
+        closedToArrival: r() > 0.96,
+        closedToDeparture: false,
+      });
     }
   }
+
+  cellCache.set(date, cells);
   return cells;
-})();
+}
+
+export function ariCellsFor(dates: ISODate[]): AriCell[] {
+  return dates.flatMap(ariCellsOn);
+}
+
+export function ariCellForPlan(ratePlanId: string, date: ISODate): AriCell | undefined {
+  return ariCellsOn(date).find((c) => c.ratePlanId === ratePlanId);
+}
+
+export function ariCellForRoomType(roomTypeId: string, date: ISODate): AriCell | undefined {
+  return ariCellsOn(date).find((c) => c.roomTypeId === roomTypeId);
+}
 
 /** Physical rooms — generated before reservations so stays can be assigned one. */
 export const rooms: Room[] = (() => {
@@ -496,7 +542,8 @@ const LIVE: ReservationStatus[] = ["confirmed", "tentative", "in_house", "checke
       : pick<Room["housekeeping"]>(["clean", "inspected", "dirty", "clean", "out_of_order"]);
   }
 
-  const soldByTypeDate = new Map<string, number>();
+  // Filled here rather than inside the generator: cells are produced on demand
+  // and must read a ledger that is already complete.
   for (const reservation of reservations) {
     if (!LIVE.includes(reservation.status)) continue;
     for (const room of reservation.rooms) {
@@ -505,13 +552,6 @@ const LIVE: ReservationStatus[] = ["confirmed", "tentative", "in_house", "checke
         soldByTypeDate.set(key, (soldByTypeDate.get(key) ?? 0) + 1);
       }
     }
-  }
-
-  for (const cell of ariCells) {
-    cell.booked = Math.min(
-      cell.allotment,
-      soldByTypeDate.get(`${cell.roomTypeId}|${cell.date}`) ?? 0,
-    );
   }
 })();
 

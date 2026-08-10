@@ -97,7 +97,7 @@ export default async function ConnectOtaPage(props: Props) {
         {existing ? (
           <Badge
             variant="outline"
-            className="border-emerald-500/25 bg-emerald-500/10 text-emerald-600 capitalize dark:text-emerald-400"
+            className="border-emerald-500/25 bg-emerald-500/10 text-emerald-600 capitalize"
           >
             Already {existing.state}
           </Badge>

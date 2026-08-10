@@ -83,8 +83,8 @@ export const roleScopes: Record<UserRole, string> = {
 };
 
 const statusTone: Record<UserStatus, string> = {
-  active: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  invited: "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  active: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600",
+  invited: "border-amber-500/20 bg-amber-500/10 text-amber-600",
   suspended: "text-muted-foreground",
 };
 

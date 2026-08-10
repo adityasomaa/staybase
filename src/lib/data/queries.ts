@@ -23,7 +23,11 @@ import type {
   Subscription,
 } from "@/lib/types";
 import {
-  ariCells,
+  ARI_FROM,
+  ARI_TO,
+  ariCellsOn,
+  ariCellForPlan,
+  ariCellForRoomType,
   channelConnections,
   guests,
   kpiSeries,
@@ -47,6 +51,8 @@ import {
 
 export {
   TODAY,
+  ARI_FROM,
+  ARI_TO,
   properties,
   roomTypes,
   ratePlans,
@@ -300,7 +306,18 @@ export interface AriRow {
 
 export function getAriGrid(from: ISODate, days: number): { dates: ISODate[]; rows: AriRow[] } {
   const dates = eachDay(from, days);
-  const dateSet = new Set(dates);
+  // Generated once for the window, then indexed — the alternative is a scan
+  // per cell, and the window can now be any ten days in a ten year range.
+  const byPlan = new Map<string, AriCell>();
+  const byRoomType = new Map<string, AriCell>();
+  for (const date of dates) {
+    for (const cell of ariCellsOn(date)) {
+      byPlan.set(`${cell.ratePlanId}|${date}`, cell);
+      if (!byRoomType.has(`${cell.roomTypeId}|${date}`)) {
+        byRoomType.set(`${cell.roomTypeId}|${date}`, cell);
+      }
+    }
+  }
   const rows: AriRow[] = roomTypes
     .filter((rt) => rt.propertyId === activeProperty.id)
     .map((rt) => {
@@ -312,12 +329,12 @@ export function getAriGrid(from: ISODate, days: number): { dates: ISODate[]; row
           code: rp.code,
           mode: rp.mode,
           channexMapped: rp.channexId !== null,
-          cells: ariCells
-            .filter((c) => c.ratePlanId === rp.id && dateSet.has(c.date))
-            .sort((a, b) => (a.date < b.date ? -1 : 1)),
+          cells: dates
+            .map((date) => byPlan.get(`${rp.id}|${date}`))
+            .filter((cell): cell is AriCell => Boolean(cell)),
         }));
       const availability = dates.map((date) => {
-        const cell = ariCells.find((c) => c.roomTypeId === rt.id && c.date === date);
+        const cell = byRoomType.get(`${rt.id}|${date}`);
         const allotment = cell?.allotment ?? rt.count;
         return {
           date,
@@ -636,7 +653,7 @@ export { pricingRules, pricingGuardrails };
 
 /** Occupancy per room type per date, from the ARI grid. */
 function occupancyFor(roomTypeId: string, date: ISODate): number {
-  const cell = ariCells.find((c) => c.roomTypeId === roomTypeId && c.date === date);
+  const cell = ariCellForRoomType(roomTypeId, date);
   if (!cell || cell.allotment === 0) return 0;
   return Math.min(1, cell.booked / cell.allotment);
 }
@@ -661,7 +678,7 @@ export function getPricingInputs(days = 30) {
   const inputs = [];
   for (const { roomType, plan } of primaryPlans) {
     for (const date of dates) {
-      const cell = ariCells.find((c) => c.ratePlanId === plan.id && c.date === date);
+      const cell = ariCellForPlan(plan.id, date);
       if (!cell) continue;
       inputs.push({
         date,
@@ -698,7 +715,7 @@ export function getPricingPreview(days = 30, rules: PricingRule[] = pricingRules
   for (const { roomType, plan } of primaryPlans) {
     const guardrail = pricingGuardrails.find((g) => g.roomTypeId === roomType.id);
     for (const date of dates) {
-      const cell = ariCells.find((c) => c.ratePlanId === plan.id && c.date === date);
+      const cell = ariCellForPlan(plan.id, date);
       if (!cell) continue;
       const occupancy = occupancyFor(roomType.id, date);
       suggestions.push(
@@ -722,9 +739,7 @@ export function getPricingPreview(days = 30, rules: PricingRule[] = pricingRules
 
   const changed = suggestions.filter((s) => s.suggestedRate !== s.currentRate);
   const uplift = suggestions.reduce((sum, s) => {
-    const cell = ariCells.find(
-      (c) => c.ratePlanId === s.ratePlanId && c.date === s.date,
-    );
+    const cell = ariCellForPlan(s.ratePlanId, s.date);
     const free = cell ? Math.max(0, cell.allotment - cell.booked) : 0;
     return sum + (s.suggestedRate - s.currentRate) * free;
   }, 0);
@@ -763,7 +778,7 @@ export function getPricingPreview(days = 30, rules: PricingRule[] = pricingRules
  */
 function orphanGapNights(roomTypeId: string, date: ISODate): number {
   const sold = (d: ISODate) => {
-    const cell = ariCells.find((c) => c.roomTypeId === roomTypeId && c.date === d);
+    const cell = ariCellForRoomType(roomTypeId, d);
     return cell ? cell.booked / Math.max(1, cell.allotment) > 0.75 : false;
   };
   if (sold(date)) return 0;

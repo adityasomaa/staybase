@@ -122,7 +122,7 @@ export default function GuestsPage() {
                       </TableCell>
                       <TableCell className="tabular hidden text-xs lg:table-cell">
                         {guest.upcoming ? (
-                          <span className="text-emerald-600 dark:text-emerald-400">
+                          <span className="text-emerald-600">
                             {formatDate(guest.upcoming)}
                           </span>
                         ) : (

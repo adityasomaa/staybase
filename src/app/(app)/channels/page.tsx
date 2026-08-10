@@ -53,8 +53,8 @@ import {
 export const metadata: Metadata = { title: "Channels" };
 
 const stateTone: Record<ChannelConnectionState, string> = {
-  connected: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-  pending: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  connected: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   error: "bg-destructive/10 text-destructive border-destructive/20",
   disabled: "bg-muted text-muted-foreground border-border",
 };

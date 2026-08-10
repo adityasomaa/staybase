@@ -3,8 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  CalendarDays,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleAlert,
@@ -15,22 +13,20 @@ import {
   TriangleAlert,
   Wrench,
 } from "lucide-react";
-import type { Matcher } from "react-day-picker";
 import { toast } from "sonner";
 
-import { addDays, dayLabel, dayNumber, diffDays, formatDate, isWeekend, monthLabel } from "@/lib/date";
+import { addDays, dayLabel, dayNumber, diffDays, formatDate, isWeekend } from "@/lib/date";
 import { channelLabels, formatMoney, initials, statusLabels } from "@/lib/format";
 import { queueChannelSync } from "@/lib/sync/auto-sync";
 import type { BlockReason, ChannelCode } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { DatePicker, fromLocalDate, toLocalDate } from "@/components/date-picker";
+import { DatePicker } from "@/components/date-picker";
+import { WindowJump } from "@/components/calendar/window-jump";
 import { ChannelPill, StatusPill } from "@/components/tokens";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -170,6 +166,8 @@ export function BookingPlanner({
   visibleDays,
   today,
   openBlockOnMount = false,
+  rangeFrom,
+  rangeTo,
 }: {
   from: string;
   dates: string[];
@@ -178,6 +176,9 @@ export function BookingPlanner({
   visibleDays: number;
   today: string;
   openBlockOnMount?: boolean;
+  /** How far the calendar may be moved — five years either side of today. */
+  rangeFrom: string;
+  rangeTo: string;
 }) {
   const [offset, setOffset] = React.useState(0);
   const [roomType, setRoomType] = React.useState<string>("all");
@@ -204,26 +205,8 @@ export function BookingPlanner({
       : null,
   );
 
-  const [jumpOpen, setJumpOpen] = React.useState(false);
-
   const windowDates = dates.slice(offset, offset + visibleDays);
   const windowStart = windowDates[0] ?? from;
-  /** The furthest start that still fills the window. */
-  const lastStart = dates[Math.max(0, dates.length - visibleDays)] ?? from;
-
-  /** Only dates the server actually sent can start the window. */
-  const jumpBounds: Matcher[] = [];
-  const firstDate = toLocalDate(dates[0] ?? from);
-  const lastDate = toLocalDate(lastStart);
-  if (firstDate) jumpBounds.push({ before: firstDate });
-  if (lastDate) jumpBounds.push({ after: lastDate });
-
-  /** Put the chosen date in the first column, as far as the range allows. */
-  const jumpTo = (iso: string) => {
-    const index = dates.indexOf(iso);
-    if (index < 0) return;
-    setOffset(Math.min(index, Math.max(0, dates.length - visibleDays)));
-  };
 
   const roomTypes = React.useMemo(
     () => [...new Map(rows.map((r) => [r.roomTypeId, r.roomTypeTitle])).entries()],
@@ -290,34 +273,17 @@ export function BookingPlanner({
             <ChevronLeft className="size-4" />
           </Button>
           {/* The window start is a date, so it is picked on a calendar rather
-              than paged to a week at a time. Whatever is chosen becomes the
-              first column. */}
-          <Popover open={jumpOpen} onOpenChange={setJumpOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                className="tabular h-8 w-44 gap-1.5 rounded-none border-x px-2 text-sm font-medium"
-              >
-                <CalendarDays className="size-3.5 shrink-0 opacity-70" />
-                <span className="truncate">{monthLabel(windowStart)}</span>
-                <ChevronDown className="ml-auto size-3.5 shrink-0 opacity-60" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" sideOffset={6} className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={toLocalDate(windowStart)}
-                defaultMonth={toLocalDate(windowStart)}
-                autoFocus
-                disabled={jumpBounds}
-                onSelect={(date) => {
-                  if (!date) return;
-                  jumpTo(fromLocalDate(date));
-                  setJumpOpen(false);
-                }}
-              />
-            </PopoverContent>
-          </Popover>
+              than paged a week at a time. Whatever is chosen becomes the first
+              column, reloading the window when it falls outside the one the
+              server sent — which is what makes past stays reachable. */}
+          <WindowJump
+            start={windowStart}
+            dates={dates}
+            maxIndex={Math.max(0, dates.length - visibleDays)}
+            rangeFrom={rangeFrom}
+            rangeTo={rangeTo}
+            onLocalJump={setOffset}
+          />
           <Button
             variant="ghost"
             size="icon"
@@ -651,7 +617,7 @@ function StaySheet({
               {stay.balance > 0 ? (
                 <Badge
                   variant="outline"
-                  className="border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                  className="border-amber-500/25 bg-amber-500/10 text-amber-700"
                 >
                   Collect before departure
                 </Badge>

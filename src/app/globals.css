@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -111,41 +109,6 @@
   --sidebar-ring: oklch(0.51 0.247 262.5);
 }
 
-.dark {
-  --background: oklch(0.175 0.014 258);
-  --foreground: oklch(0.96 0.006 258);
-  --card: oklch(0.215 0.016 258);
-  --card-foreground: oklch(0.96 0.006 258);
-  --popover: oklch(0.225 0.016 258);
-  --popover-foreground: oklch(0.96 0.006 258);
-  /* Lifted off the logo blue: the pure value on a dark canvas is loud, and
-     the mark should still be the brightest blue on screen. */
-  --primary: oklch(0.68 0.185 262);
-  --primary-foreground: oklch(0.17 0.05 262);
-  --secondary: oklch(0.27 0.018 258);
-  --secondary-foreground: oklch(0.95 0.006 258);
-  --muted: oklch(0.27 0.018 258);
-  --muted-foreground: oklch(0.69 0.017 258);
-  --accent: oklch(0.32 0.055 262);
-  --accent-foreground: oklch(0.93 0.04 262);
-  --destructive: oklch(0.66 0.19 24);
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.68 0.185 262);
-  --chart-1: oklch(0.68 0.185 262);
-  --chart-2: oklch(0.75 0.135 160);
-  --chart-3: oklch(0.79 0.14 78);
-  --chart-4: oklch(0.7 0.16 308);
-  --chart-5: oklch(0.7 0.175 20);
-  --sidebar: oklch(0.198 0.015 258);
-  --sidebar-foreground: oklch(0.93 0.006 258);
-  --sidebar-primary: oklch(0.68 0.185 262);
-  --sidebar-primary-foreground: oklch(0.17 0.05 262);
-  --sidebar-accent: oklch(0.3 0.05 262);
-  --sidebar-accent-foreground: oklch(0.94 0.035 262);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.68 0.185 262);
-}
 
 @layer base {
   * {
@@ -193,6 +156,29 @@
   [data-spotlight="true"] {
     animation: none;
   }
+}
+
+/*
+ * Google's translator ships a banner that pushes the page down by an inline
+ * `top` on <body> and paints its own toolbar. The switcher in the header is
+ * the control, so the banner is hidden and the offset undone.
+ */
+.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+/* The translator wraps changed text in <font>; keep it inheriting. */
+font {
+  font: inherit;
+  color: inherit;
+  background: none !important;
+  box-shadow: none !important;
 }
 
 @utility scrollbar-thin {

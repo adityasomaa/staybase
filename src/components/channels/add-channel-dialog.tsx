@@ -112,7 +112,7 @@ export function AddChannelDialog({
                       {option.connected ? (
                         <Badge
                           variant="outline"
-                          className="gap-1 border-emerald-500/25 bg-emerald-500/10 text-[10px] text-emerald-600 dark:text-emerald-400"
+                          className="gap-1 border-emerald-500/25 bg-emerald-500/10 text-[10px] text-emerald-600"
                         >
                           <CircleCheck className="size-3" />
                           Connected

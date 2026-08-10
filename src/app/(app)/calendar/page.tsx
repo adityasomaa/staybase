@@ -7,7 +7,7 @@ import { StatCard } from "@/components/stat-card";
 import { isChannexConfigured } from "@/lib/channex/client";
 import { addDays } from "@/lib/date";
 import { formatMoney, formatPercent } from "@/lib/format";
-import { TODAY, getAriGrid, ratePlans, roomTypes } from "@/lib/data/queries";
+import { ARI_FROM, ARI_TO, TODAY, getAriGrid, ratePlans, roomTypes } from "@/lib/data/queries";
 
 export const metadata: Metadata = { title: "Rates & Availability" };
 
@@ -15,8 +15,13 @@ export const metadata: Metadata = { title: "Rates & Availability" };
 const WINDOW_DAYS = 60;
 const VISIBLE_DAYS = 14;
 
-export default function CalendarPage() {
-  const from = addDays(TODAY, -1);
+export default async function CalendarPage(props: {
+  searchParams: Promise<{ start?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const requested = searchParams.start ?? addDays(TODAY, -1);
+  // Clamped so a hand-edited URL cannot ask for a window outside the range.
+  const from = requested < ARI_FROM ? ARI_FROM : requested > ARI_TO ? ARI_TO : requested;
   const { dates, rows } = getAriGrid(from, WINDOW_DAYS);
 
   const allCells = rows.flatMap((row) => row.plans.flatMap((plan) => plan.cells));
@@ -71,6 +76,8 @@ export default function CalendarPage() {
       <RateCalendar
         initialFrom={from}
         days={VISIBLE_DAYS}
+        rangeFrom={ARI_FROM}
+        rangeTo={ARI_TO}
         dates={dates}
         rows={rows}
         channexConfigured={isChannexConfigured()}

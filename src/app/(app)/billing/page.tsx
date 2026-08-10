@@ -45,8 +45,8 @@ import { getBillingOverview } from "@/lib/data/queries";
 export const metadata: Metadata = { title: "Billing" };
 
 const invoiceTone: Record<InvoiceStatus, string> = {
-  paid: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  open: "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  paid: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600",
+  open: "border-amber-500/20 bg-amber-500/10 text-amber-600",
   past_due: "border-destructive/20 bg-destructive/10 text-destructive",
   void: "text-muted-foreground",
 };

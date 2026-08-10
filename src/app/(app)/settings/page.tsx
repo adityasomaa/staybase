@@ -216,9 +216,9 @@ export default function SettingsPage() {
                       variant="outline"
                       className={
                         present
-                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600"
                           : variable.required
-                            ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            ? "border-amber-500/20 bg-amber-500/10 text-amber-600"
                             : "text-muted-foreground"
                       }
                     >
@@ -262,7 +262,7 @@ function StatusRow({
       <span className="text-muted-foreground">{label}</span>
       <span
         className={`inline-flex items-center gap-1.5 font-medium ${
-          ok ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"
+          ok ? "text-emerald-600" : "text-amber-600"
         }`}
       >
         {ok ? <CircleCheck className="size-3.5" /> : <CircleX className="size-3.5" />}

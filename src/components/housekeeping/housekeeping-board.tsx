@@ -168,7 +168,7 @@ export function HousekeepingBoard({ rooms }: { rooms: HousekeepingRoom[] }) {
                     <span className="text-foreground">{room.assignedTo ?? "unassigned"}</span>
                   </p>
                   {room.departingToday ? (
-                    <p className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
+                    <p className="flex items-center gap-1 font-medium text-amber-600">
                       <TriangleAlert className="size-3" />
                       Departs today — prioritise
                     </p>

@@ -235,7 +235,7 @@ function Item({ label, value, warn }: { label: string; value: string; warn?: boo
     <div>
       <dt className="text-muted-foreground">{label}</dt>
       <dd
-        className={`truncate font-medium ${warn ? "text-amber-600 dark:text-amber-400" : ""}`}
+        className={`truncate font-medium ${warn ? "text-amber-600" : ""}`}
       >
         {value}
       </dd>

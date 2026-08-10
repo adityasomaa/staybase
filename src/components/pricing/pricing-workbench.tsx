@@ -361,8 +361,8 @@ export function PricingWorkbench({
                             className={cn(
                               "ml-1 text-xs",
                               row.deltaPct > 0
-                                ? "text-emerald-600 dark:text-emerald-400"
-                                : "text-amber-600 dark:text-amber-400",
+                                ? "text-emerald-600"
+                                : "text-amber-600",
                             )}
                           >
                             {row.deltaPct > 0 ? "+" : ""}
@@ -385,7 +385,7 @@ export function PricingWorkbench({
                                 <TooltipTrigger asChild>
                                   <Badge
                                     variant="outline"
-                                    className="border-amber-500/25 bg-amber-500/10 text-[10px] text-amber-700 dark:text-amber-300"
+                                    className="border-amber-500/25 bg-amber-500/10 text-[10px] text-amber-700"
                                   >
                                     {row.clampedBy.replace(/_/g, " ")}
                                   </Badge>
@@ -523,7 +523,7 @@ function MiniStat({
         <p
           className={cn(
             "tabular mt-1.5 text-2xl font-semibold tracking-tight",
-            positive === true && "text-emerald-600 dark:text-emerald-400",
+            positive === true && "text-emerald-600",
             positive === false && "text-destructive",
           )}
         >

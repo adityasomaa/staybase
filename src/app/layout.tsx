@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -22,12 +21,8 @@ export const metadata: Metadata = {
   keywords: ["PMS", "hotel software", "channel manager", "Channex", "revenue management"],
 };
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f9fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#1b1f26" },
-  ],
-};
+/** One canvas — the app has no dark theme, so the browser chrome matches it. */
+export const viewport: Viewport = { themeColor: "#f7f9fa" };
 
 export default function RootLayout({
   children,
@@ -39,10 +34,8 @@ export default function RootLayout({
       className={`${manrope.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <ThemeProvider>
-          <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
-          <Toaster position="bottom-right" richColors closeButton />
-        </ThemeProvider>
+        <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+        <Toaster position="bottom-right" richColors closeButton />
       </body>
     </html>
   );

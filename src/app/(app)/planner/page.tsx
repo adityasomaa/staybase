@@ -7,6 +7,8 @@ import { StatCard } from "@/components/stat-card";
 import { formatPercent } from "@/lib/format";
 import { addDays } from "@/lib/date";
 import {
+  ARI_FROM,
+  ARI_TO,
   TODAY,
   getPlannerGrid,
   inHouseOn,
@@ -22,10 +24,12 @@ const WINDOW_DAYS = 90;
 const VISIBLE_DAYS = 21;
 
 export default async function PlannerPage(props: {
-  searchParams: Promise<{ block?: string }>;
+  searchParams: Promise<{ block?: string; start?: string }>;
 }) {
   const searchParams = await props.searchParams;
-  const from = addDays(TODAY, -3);
+  const requested = searchParams.start ?? addDays(TODAY, -3);
+  // Clamped so a hand-edited URL cannot ask for a window outside the range.
+  const from = requested < ARI_FROM ? ARI_FROM : requested > ARI_TO ? ARI_TO : requested;
   const { dates, rows, unassigned } = getPlannerGrid(from, WINDOW_DAYS);
 
   const activeBlocks = listRoomBlocks().filter((b) => b.to > TODAY);
@@ -76,6 +80,8 @@ export default async function PlannerPage(props: {
         visibleDays={VISIBLE_DAYS}
         today={TODAY}
         openBlockOnMount={searchParams.block === "1"}
+        rangeFrom={ARI_FROM}
+        rangeTo={ARI_TO}
       />
 
       <p className="text-muted-foreground text-xs text-pretty">
