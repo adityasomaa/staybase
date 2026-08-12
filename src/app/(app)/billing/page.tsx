@@ -40,7 +40,7 @@ import { formatDate } from "@/lib/date";
 import { formatMoney, formatMoneyCompact } from "@/lib/format";
 import type { InvoiceStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { BILLING_CURRENCY, PRICE_PER_PROPERTY, getBillingOverview } from "@/lib/data/queries";
+import { BILLING_CURRENCY, PRICE_PER_ALLOTMENT, getBillingOverview } from "@/lib/data/queries";
 import { listProperties } from "@/lib/workspace/properties";
 
 export const metadata: Metadata = { title: "Billing" };
@@ -72,7 +72,7 @@ export default async function BillingPage() {
     nextInvoiceEstimate,
   } = getBillingOverview(
     properties.length,
-    properties.reduce((sum, property) => sum + property.rooms, 0),
+    properties.reduce((sum, property) => sum + property.allotments, 0),
   );
 
   const graceUsed =
@@ -87,7 +87,7 @@ export default async function BillingPage() {
     <>
       <PageHeader
         title="Billing"
-        description={`Every property costs ${BILLING_CURRENCY} ${PRICE_PER_PROPERTY} a month, billed together. An unpaid invoice warns first, then locks the workspace once the grace period runs out.`}
+        description={`${BILLING_CURRENCY} ${PRICE_PER_ALLOTMENT} per allotment a month — a sellable unit, not a bedroom. A villa booked whole is one; twelve rooms sold individually are twelve. An unpaid invoice warns first, then locks the workspace once the grace period runs out.`}
         actions={
           <>
             <SimulateSuspensionButton />
@@ -134,13 +134,13 @@ export default async function BillingPage() {
         <StatCard
           label="Current plan"
           value={plan.name}
-          hint={`${BILLING_CURRENCY} ${PRICE_PER_PROPERTY} per property / month`}
+          hint={`${BILLING_CURRENCY} ${PRICE_PER_ALLOTMENT} per allotment / month`}
           icon={CreditCard}
         />
         <StatCard
-          label="Properties"
-          value={String(subscription.properties)}
-          hint={`${subscription.billableRooms} room${subscription.billableRooms === 1 ? "" : "s"} across them`}
+          label="Allotments"
+          value={String(subscription.billableRooms)}
+          hint={`across ${subscription.properties} propert${subscription.properties === 1 ? "y" : "ies"}`}
           icon={Building2}
         />
         <StatCard

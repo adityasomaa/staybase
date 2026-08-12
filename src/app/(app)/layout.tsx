@@ -3,18 +3,23 @@ import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { TutorialSpotlight } from "@/components/help/tutorial-spotlight";
-import { WalkthroughLauncher } from "@/components/help/walkthrough-launcher";
 import { SuspendedWorkspace } from "@/components/billing/suspended-workspace";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
   arrivalsOn,
+  channelConnections,
+  listReservations,
+  ratePlans,
+  roomTypes,
+  rooms,
+  users,
   getBillingOverview,
   getHousekeepingBoard,
   listRoomBlocks,
   syncEvents,
   TODAY,
 } from "@/lib/data/queries";
-import { getBillingState, getWalkthroughProgress, hasSeenTour } from "@/lib/workspace";
+import { getBillingState } from "@/lib/workspace";
 import { isSignedIn } from "@/lib/workspace/account";
 import { listProperties } from "@/lib/workspace/properties";
 
@@ -27,11 +32,7 @@ export const dynamic = "force-dynamic";
 export default async function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [billingState, seenTour, walkthroughProgress] = await Promise.all([
-    getBillingState(),
-    hasSeenTour(),
-    getWalkthroughProgress(),
-  ]);
+  const billingState = await getBillingState();
   // The shell is only reachable with a session and at least one property —
   // otherwise there is nothing for any of these screens to be about.
   if (!(await isSignedIn())) redirect("/login");
@@ -43,6 +44,18 @@ export default async function AppLayout({
     properties.length,
     properties.reduce((sum, property) => sum + property.rooms, 0),
   );
+
+  // Counted here so every step reports from the workspace itself.
+  const onboarding = {
+    properties: properties.length,
+    roomTypes: roomTypes.length,
+    rooms: rooms.length,
+    ratePlans: ratePlans.length,
+    ratedDates: roomTypes.length > 0 && ratePlans.length > 0 ? 1 : 0,
+    channels: channelConnections.length,
+    reservations: listReservations().length,
+    users: users.length,
+  };
 
   const badges = {
     arrivals: arrivalsOn().length,
@@ -83,10 +96,10 @@ export default async function AppLayout({
           propertyName={`${activeProperty.title} · ${activeProperty.city}`}
           pastDue={billing.outstanding.length > 0}
           daysUntilSuspension={billing.daysUntilSuspension}
+          onboarding={onboarding}
         />
         <div className="flex flex-1 flex-col gap-5 p-4 lg:p-6">{children}</div>
       </SidebarInset>
-      {seenTour ? null : <WalkthroughLauncher resumeFrom={walkthroughProgress} />}
       <TutorialSpotlight />
     </SidebarProvider>
   );

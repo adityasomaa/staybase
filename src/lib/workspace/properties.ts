@@ -23,6 +23,7 @@ export interface NewProperty {
   country: string;
   currency: Currency;
   rooms: number;
+  allotments: number;
 }
 
 function parse(raw: string | undefined): Property[] {
@@ -83,6 +84,7 @@ export async function addProperty(input: NewProperty): Promise<Property> {
     currency: input.currency,
     logoHue: (existing.length * 47) % 360,
     rooms: Math.max(0, Math.round(input.rooms)),
+    allotments: Math.max(0, Math.round(input.allotments)),
     channexId: null,
   };
   await saveProperties([...existing, property]);

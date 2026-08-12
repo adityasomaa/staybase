@@ -20,15 +20,14 @@ export const invoices: Invoice[] = [];
 export const pricingRules: PricingRule[] = [];
 export const pricingGuardrails: PricingGuardrail[] = [];
 
-export { PRICE_PER_PROPERTY, BILLING_CURRENCY } from "@/lib/billing/pricing";
-import { PRICE_PER_PROPERTY, BILLING_CURRENCY } from "@/lib/billing/pricing";
+export { PRICE_PER_ALLOTMENT, BILLING_CURRENCY } from "@/lib/billing/pricing";
+import { PRICE_PER_ALLOTMENT, BILLING_CURRENCY } from "@/lib/billing/pricing";
 
 /**
- * One plan, priced per property.
+ * One plan, priced per allotment.
  *
- * The old three-tier, per-room price list is gone: the operator set a single
- * price of $10 per property per month, and a tier table that nobody can move
- * between is just furniture.
+ * A tier table nobody can move between is just furniture, so there is one
+ * line: every sellable unit costs the same.
  */
 export const plans: Plan[] = [
   {
@@ -38,7 +37,7 @@ export const plans: Plan[] = [
     minimumMonthly: 0,
     includedProperties: 1,
     features: [
-      `${BILLING_CURRENCY} ${PRICE_PER_PROPERTY} per property, per month`,
+      `${BILLING_CURRENCY} ${PRICE_PER_ALLOTMENT} per allotment, per month`,
       "Unlimited rooms, rate plans and reservations",
       "Channex connectivity to every supported OTA",
       "Dynamic pricing, user roles and property scoping",

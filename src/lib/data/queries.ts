@@ -41,7 +41,7 @@ import {
   TODAY,
 } from "@/lib/data/seed";
 import {
-  PRICE_PER_PROPERTY,
+  PRICE_PER_ALLOTMENT,
   BILLING_CURRENCY,
   invoices,
   plans,
@@ -52,7 +52,7 @@ import {
 } from "@/lib/data/seed-ops";
 
 export {
-  PRICE_PER_PROPERTY,
+  PRICE_PER_ALLOTMENT,
   BILLING_CURRENCY,
   TODAY,
   ARI_FROM,
@@ -633,7 +633,7 @@ export interface BillingOverview {
  * has to be passed in because it lives in the workspace cookie, which only a
  * request can read.
  */
-export function getBillingOverview(propertyCount = 0, billableRooms = 0): BillingOverview {
+export function getBillingOverview(propertyCount = 0, allotments = 0): BillingOverview {
   const plan = plans[0];
   const outstanding = invoices.filter(
     (invoice) => invoice.status === "open" || invoice.status === "past_due",
@@ -646,7 +646,7 @@ export function getBillingOverview(propertyCount = 0, billableRooms = 0): Billin
   const subscription: Subscription = {
     planId: plan.id,
     status: outstanding.length > 0 ? "past_due" : "active",
-    billableRooms,
+    billableRooms: allotments,
     properties: propertyCount,
     currentPeriodStart: TODAY,
     currentPeriodEnd: addDays(TODAY, 30),
@@ -664,7 +664,7 @@ export function getBillingOverview(propertyCount = 0, billableRooms = 0): Billin
     daysUntilSuspension: oldestDue
       ? diffDays(TODAY, addDays(oldestDue, subscription.graceDays))
       : null,
-    nextInvoiceEstimate: propertyCount * PRICE_PER_PROPERTY,
+    nextInvoiceEstimate: allotments * PRICE_PER_ALLOTMENT,
   };
 }
 

@@ -19,7 +19,14 @@ export interface Property {
   timezone: string;
   currency: Currency;
   logoHue: number;
+  /** Physical bedrooms — what housekeeping cleans. */
   rooms: number;
+  /**
+   * Sellable units. A three-bedroom villa booked whole is 1; twelve Deluxe
+   * rooms sold individually are 12. This is what the subscription bills on,
+   * and what a channel receives as availability.
+   */
+  allotments: number;
   /** Channex property UUID once the property is registered upstream. */
   channexId: string | null;
 }

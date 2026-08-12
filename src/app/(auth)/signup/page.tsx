@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { signUp } from "@/app/(auth)/actions";
 import { AuthForm } from "@/components/auth/auth-form";
-import { BILLING_CURRENCY, PRICE_PER_PROPERTY } from "@/lib/billing/pricing";
+import { BILLING_CURRENCY, PRICE_PER_ALLOTMENT } from "@/lib/billing/pricing";
 import { getAccount, isSignedIn } from "@/lib/workspace/account";
 import {
   Card,
@@ -29,7 +29,7 @@ export default async function SignUpPage() {
         <CardDescription className="text-pretty">
           {existing
             ? `This browser already has an account for ${existing.email}.`
-            : `${BILLING_CURRENCY} ${PRICE_PER_PROPERTY} per property, per month. Add as many properties as you run — each one is billed the same.`}
+            : `${BILLING_CURRENCY} ${PRICE_PER_ALLOTMENT} per allotment, per month — you pay for what you can sell, not for how the building is divided up.`}
         </CardDescription>
       </CardHeader>
 

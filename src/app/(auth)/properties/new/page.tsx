@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Building2 } from "lucide-react";
 
 import { createProperty } from "@/app/(auth)/actions";
-import { PRICE_PER_PROPERTY, BILLING_CURRENCY } from "@/lib/data/queries";
+import { AllotmentPricing } from "@/components/billing/allotment-cost";
 import { isSignedIn } from "@/lib/workspace/account";
 import { listProperties } from "@/lib/workspace/properties";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export default async function NewPropertyPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="rooms">Rooms</Label>
+              <Label htmlFor="rooms">Bedrooms</Label>
               <Input
                 id="rooms"
                 name="rooms"
@@ -76,12 +76,7 @@ export default async function NewPropertyPage() {
             </div>
           </div>
 
-          <div className="bg-muted/50 flex items-baseline justify-between rounded-lg border p-3">
-            <span className="text-sm">Added to your bill</span>
-            <span className="tabular text-sm font-semibold">
-              {BILLING_CURRENCY} {PRICE_PER_PROPERTY}.00 / month
-            </span>
-          </div>
+          <AllotmentPricing />
         </CardContent>
 
         <CardFooter className="mt-4 flex-col items-stretch gap-2">

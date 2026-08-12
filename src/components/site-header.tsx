@@ -7,6 +7,8 @@ import { Bell, Plus, Search, TriangleAlert } from "lucide-react";
 
 import { GlobalSearch } from "@/components/global-search";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { OnboardingPanel } from "@/components/help/onboarding-panel";
+import type { OnboardingSnapshot } from "@/lib/help/onboarding";
 import { allNavItems } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,10 +19,12 @@ export function SiteHeader({
   propertyName,
   pastDue,
   daysUntilSuspension,
+  onboarding,
 }: {
   propertyName: string;
   pastDue: boolean;
   daysUntilSuspension: number | null;
+  onboarding: OnboardingSnapshot;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
@@ -96,6 +100,8 @@ export function SiteHeader({
                 <Search className="size-4" />
               </Button>
             </div>
+
+            <OnboardingPanel snapshot={onboarding} />
 
             <LanguageSwitcher />
 

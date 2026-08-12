@@ -7,7 +7,7 @@ import { Check, ChevronsUpDown, LifeBuoy, LogOut, Plus, Zap } from "lucide-react
 
 import { signOut } from "@/app/(auth)/actions";
 import { navigation } from "@/lib/navigation";
-import { BILLING_CURRENCY, PRICE_PER_PROPERTY } from "@/lib/billing/pricing";
+import { BILLING_CURRENCY, PRICE_PER_ALLOTMENT } from "@/lib/billing/pricing";
 import { cn } from "@/lib/utils";
 import { StaybaseMark } from "@/components/brand/staybase-logo";
 import { Badge } from "@/components/ui/badge";
@@ -119,7 +119,7 @@ export function AppSidebar({
                     <Plus className="size-4" />
                     <span className="flex-1">Add a property</span>
                     <span className="text-muted-foreground tabular text-xs">
-                      {BILLING_CURRENCY} {PRICE_PER_PROPERTY}/mo
+                      {BILLING_CURRENCY} {PRICE_PER_ALLOTMENT}/allotment
                     </span>
                   </Link>
                 </DropdownMenuItem>

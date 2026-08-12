@@ -81,6 +81,7 @@ export async function createProperty(formData: FormData) {
     country: String(formData.get("country") ?? "").trim(),
     currency: (String(formData.get("currency") ?? "IDR") as Currency) || "IDR",
     rooms: Number(formData.get("rooms") ?? 0),
+    allotments: Number(formData.get("allotments") ?? 0),
   });
 
   redirect("/dashboard");
