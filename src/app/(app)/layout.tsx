@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { TutorialSpotlight } from "@/components/help/tutorial-spotlight";
@@ -20,7 +18,6 @@ import {
   TODAY,
 } from "@/lib/data/queries";
 import { getBillingState } from "@/lib/workspace";
-import { isSignedIn } from "@/lib/workspace/account";
 import { listProperties } from "@/lib/workspace/properties";
 
 /**
@@ -33,16 +30,15 @@ export default async function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const billingState = await getBillingState();
-  // The shell is only reachable with a session and at least one property —
-  // otherwise there is nothing for any of these screens to be about.
-  if (!(await isSignedIn())) redirect("/login");
+  // Opening the URL is the whole entry path: no sign-in, and no property is
+  // a legitimate state, so the shell has to render an empty workspace rather
+  // than bounce somebody to a form.
   const properties = await listProperties();
-  const activeProperty = properties[0];
-  if (!activeProperty) redirect("/properties/new");
+  const activeProperty = properties[0] ?? null;
 
   const billing = getBillingOverview(
     properties.length,
-    properties.reduce((sum, property) => sum + property.rooms, 0),
+    properties.reduce((sum, property) => sum + property.allotments, 0),
   );
 
   // Counted here so every step reports from the workspace itself.
@@ -86,14 +82,14 @@ export default async function AppLayout({
           rooms: p.rooms,
           connected: p.channexId !== null,
         }))}
-        activePropertyId={activeProperty.id}
+        activePropertyId={activeProperty?.id ?? null}
         badges={badges}
       />
       {/* SidebarInset already renders a <main>; nesting another would create a
           second landmark, so the page wrapper below is a plain element. */}
       <SidebarInset className="min-w-0 overflow-x-clip">
         <SiteHeader
-          propertyName={`${activeProperty.title} · ${activeProperty.city}`}
+          propertyName={activeProperty ? `${activeProperty.title} · ${activeProperty.city}` : "No property yet"}
           pastDue={billing.outstanding.length > 0}
           daysUntilSuspension={billing.daysUntilSuspension}
           onboarding={onboarding}

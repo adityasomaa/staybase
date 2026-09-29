@@ -14,7 +14,7 @@ export default function NotFound() {
         dashboard to pick up where you left off.
       </p>
       <Button asChild>
-        <Link href="/dashboard">Back to dashboard</Link>
+        <Link href="/demo">Back to the workspace</Link>
       </Button>
     </div>
   );

@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Building2 } from "lucide-react";
 
-import { createProperty } from "@/app/(auth)/actions";
+import { createProperty } from "@/app/(setup)/actions";
 import { AllotmentPricing } from "@/components/billing/allotment-cost";
-import { isSignedIn } from "@/lib/workspace/account";
 import { listProperties } from "@/lib/workspace/properties";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +21,6 @@ export const metadata: Metadata = { title: "Add a property" };
 export const dynamic = "force-dynamic";
 
 export default async function NewPropertyPage() {
-  if (!(await isSignedIn())) redirect("/login");
   const existing = await listProperties();
 
   return (
@@ -85,7 +82,7 @@ export default async function NewPropertyPage() {
           </Button>
           {existing.length > 0 ? (
             <Button variant="ghost" className="w-full" asChild>
-              <Link href="/dashboard">Back to the workspace</Link>
+              <Link href="/demo">Back to the workspace</Link>
             </Button>
           ) : null}
         </CardFooter>

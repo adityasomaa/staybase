@@ -14,7 +14,7 @@ import type { TourTarget, TourTargetId } from "@/lib/types";
  */
 export const tourTargets: Record<TourTargetId, TourTarget> = {
   "global-search": {
-    href: "/dashboard",
+    href: "/demo",
     label: "Show me search",
     hint: "This is search. It reaches the whole reservation ledger on the server, not just what this page has loaded — Ctrl+K (⌘K on a Mac) opens it from anywhere.",
   },

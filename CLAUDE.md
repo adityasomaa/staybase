@@ -47,7 +47,8 @@ must all be clean before pushing.
 ```
 src/
   app/
-    (app)/           route group carrying the sidebar shell
+    (app)/           route group carrying the sidebar shell; /demo is the entry
+    (setup)/         property form, shown without the shell
     api/channex/     sync (ARI push) + webhook (inbound bookings)
     api/search/      global search index
     api/health/      readiness probe
@@ -229,14 +230,19 @@ proxy_execute("POST",   f"{BASE}/link", "VERCEL", query_params={"teamId": TEAM},
 
 These are deliberate, not oversights — but they are the obvious next steps.
 
-- **No authentication.** `/users` manages a directory, not real sessions. Role
-  and property scoping are modelled but not enforced anywhere.
+- **No authentication, by request.** Sign-in and sign-up were built and then
+  removed: this is a demo that has to open straight onto the workspace from a
+  shared link. `/users` manages a directory, not real sessions, and role and
+  property scoping are modelled but not enforced anywhere. Re-adding auth means
+  restoring `lib/workspace/account.ts` (scrypt + httpOnly cookies) from git
+  history, not writing it again.
 - **Mutations are staged, not persisted.** Creating a room type, blocking a
   room, taking a payment and applying pricing suggestions all update local
   state and toast. Wiring them means implementing server actions against
   Drizzle and replacing the reads in `queries.ts`.
-- **Single active property.** `activeProperty` is hardcoded to the first
-  property; the switcher changes the label only.
+- **Single active property.** `activeProperty` is the first property in the
+  cookie store; the switcher changes the label only. Zero properties is a
+  supported state — the shell renders and says so rather than redirecting.
 - **Channex is untested against a live account.** The client, mapping and
   webhook are written to the documented API but have only been exercised in
   dry-run.

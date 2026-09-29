@@ -3,9 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, ChevronsUpDown, LifeBuoy, LogOut, Plus, Zap } from "lucide-react";
+import { Check, ChevronsUpDown, LifeBuoy, Plus, Zap } from "lucide-react";
 
-import { signOut } from "@/app/(auth)/actions";
 import { navigation } from "@/lib/navigation";
 import { BILLING_CURRENCY, PRICE_PER_ALLOTMENT } from "@/lib/billing/pricing";
 import { cn } from "@/lib/utils";
@@ -57,13 +56,14 @@ export function AppSidebar({
   badges,
 }: {
   properties: SidebarProperty[];
-  activePropertyId: string;
+  activePropertyId: string | null;
   badges: SidebarBadges;
 }) {
   const pathname = usePathname();
   const { setOpenMobile, isMobile } = useSidebar();
   const [selected, setSelected] = React.useState(activePropertyId);
-  const active = properties.find((p) => p.id === selected) ?? properties[0];
+  // Null until a property exists — the workspace opens empty and says so.
+  const active = properties.find((p) => p.id === selected) ?? properties[0] ?? null;
 
   const closeOnMobile = () => {
     if (isMobile) setOpenMobile(false);
@@ -87,7 +87,7 @@ export function AppSidebar({
                       Stay<span className="text-primary">Base</span>
                     </span>
                     <span className="text-muted-foreground truncate text-xs">
-                      {active.title}
+                      {active?.title ?? "No property yet"}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 opacity-60" />
@@ -97,6 +97,11 @@ export function AppSidebar({
                 <DropdownMenuLabel className="text-muted-foreground text-xs">
                   Properties
                 </DropdownMenuLabel>
+                {properties.length === 0 ? (
+                  <p className="text-muted-foreground px-2 py-1.5 text-xs text-pretty">
+                    None yet. Add one to start selling.
+                  </p>
+                ) : null}
                 {properties.map((property) => (
                   <DropdownMenuItem
                     key={property.id}
@@ -185,9 +190,9 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Connectivity status">
               <Link href="/channels">
-                <Zap className={active.connected ? "text-emerald-500" : "text-amber-500"} />
+                <Zap className={active?.connected ? "text-emerald-500" : "text-amber-500"} />
                 <span className="truncate">
-                  {active.connected ? "Channex live" : "Channex pending"}
+                  {active?.connected ? "Channex live" : "Channex pending"}
                 </span>
               </Link>
             </SidebarMenuButton>
@@ -199,18 +204,6 @@ export function AppSidebar({
                 <span>Channex docs</span>
               </a>
             </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            {/* A form rather than a link: signing out changes state, and a
-                GET that logs you out is a link anything can follow. */}
-            <form action={signOut}>
-              <SidebarMenuButton asChild tooltip="Sign out">
-                <button type="submit" className="w-full">
-                  <LogOut />
-                  <span>Sign out</span>
-                </button>
-              </SidebarMenuButton>
-            </form>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
