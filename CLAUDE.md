@@ -79,6 +79,14 @@ reads the demo dataset, and swapping it to Drizzle is a drop-in change because
 - **Demo dataset, not a database.** No `DATABASE_URL` is set, so the app
   serves a deterministic seeded dataset. This is deliberate: preview deploys
   work with zero infrastructure. `getDb()` returns `null` when unset.
+- **The demo ships populated.** It was emptied once, on request, and then
+  refilled on request when an empty workspace turned out to look broken rather
+  than new: three properties, 900 reservations, 64 guests, seven channels and
+  a six-month invoice history. `listProperties()` returns the seeded estate
+  first and appends anything this browser added through the form, so a visitor
+  with no cookie still lands in a working business. Allotments are deliberately
+  not equal to bedrooms on the Canggu property — 24 bedrooms, 8 sellable lofts
+  — because that is the distinction the price is based on.
 - **The seed is internally consistent.** Occupancy, ADR, RevPAR, the forecast,
   the front desk and the ARI grid are all derived from the *same* 900
   reservations. An earlier version generated KPIs separately and the dashboard

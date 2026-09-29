@@ -3,15 +3,16 @@ import "server-only";
 import { cookies } from "next/headers";
 
 import type { Currency, Property } from "@/lib/types";
+import { properties as demoProperties } from "@/lib/data/seed";
 
 /**
- * The property list, in a cookie.
+ * The property list: the demo estate, plus anything this browser added.
  *
- * There is no database yet, and the operator asked for the shell first: a new
- * workspace that starts empty and can have properties added to it. A cookie is
- * the honest version of that — it survives a reload and a new tab, it is
- * per-browser rather than per-account, and it makes the eventual swap to a
- * table a change in one module.
+ * The demo has to look like a working business the moment someone opens the
+ * link, so the three seeded properties are always there — a visitor with no
+ * cookie still lands in a live workspace. Properties created through the form
+ * are appended in a cookie on top, which is what makes "add a property" do
+ * something visible without a database behind it.
  */
 export const PROPERTIES_COOKIE = "staybase_properties";
 
@@ -39,6 +40,12 @@ function parse(raw: string | undefined): Property[] {
 }
 
 export async function listProperties(): Promise<Property[]> {
+  const store = await cookies();
+  return [...demoProperties, ...parse(store.get(PROPERTIES_COOKIE)?.value)];
+}
+
+/** Only the ones this browser added — what the cookie is allowed to hold. */
+async function listAddedProperties(): Promise<Property[]> {
   const store = await cookies();
   return parse(store.get(PROPERTIES_COOKIE)?.value);
 }
@@ -73,6 +80,7 @@ function codeFor(title: string, taken: string[]): string {
 }
 
 export async function addProperty(input: NewProperty): Promise<Property> {
+  const added = await listAddedProperties();
   const existing = await listProperties();
   const property: Property = {
     id: `prop_${Math.random().toString(36).slice(2, 10)}`,
@@ -87,7 +95,7 @@ export async function addProperty(input: NewProperty): Promise<Property> {
     allotments: Math.max(0, Math.round(input.allotments)),
     channexId: null,
   };
-  await saveProperties([...existing, property]);
+  await saveProperties([...added, property]);
   return property;
 }
 
